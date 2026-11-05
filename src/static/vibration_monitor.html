@@ -3,482 +3,261 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#090c10">
-  <link rel="manifest" href="/static/manifest.json">
-  <title>AutoCare Precision Telematics | Mechanical Diagnostics</title>
+  <meta name="theme-color" content="#000000">
+  <title>AutoContentment | Smart Vehicle Companion</title>
   
-  <!-- Leaflet CSS for Dark Mode GPS Hazard Mapping -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
   <style>
     :root {
-      --bg: #07090e;
-      --card: #0f141f;
-      --card-border: #1e2638;
-      --text: #f1f5f9;
-      --muted: #64748b;
+      --bg: #000000;
+      --surface: #0f1115;
+      --surface-elevated: #161a22;
+      --border: #232733;
+      --text: #ffffff;
+      --text-muted: #8b949e;
       --accent: #2563eb;
       --green: #10b981;
       --amber: #f59e0b;
       --red: #ef4444;
-      --cyan: #06b6d4;
-      --mono: "SF Mono", "Consolas", "Courier New", monospace;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding-bottom: 70px; min-height: 100vh; overflow-x: hidden; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding-bottom: 80px; min-height: 100vh; }
 
-    /* Top Aerospace Header */
-    .header { background: #0c1018; border-bottom: 1px solid var(--card-border); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-    .brand-title { font-size: 14px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #93c5fd; display: flex; align-items: center; gap: 8px; }
-    .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); animation: pulse 2s infinite; }
-    @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-    .status-badge { font-family: var(--mono); font-size: 11px; padding: 4px 10px; border-radius: 4px; background: #1e293b; color: #38bdf8; font-weight: 600; }
+    /* Luxury Header */
+    .header { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
+    .brand-group { display: flex; flex-direction: column; }
+    .brand-name { font-size: 15px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
+    .brand-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.5px; }
+    .status-pill { background: #064e3b; color: #34d399; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 999px; display: flex; align-items: center; gap: 6px; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #34d399; }
 
-    /* Navigation Tabs */
-    .tab-bar { display: flex; background: #0c1018; border-bottom: 1px solid var(--card-border); padding: 0 16px; overflow-x: auto; gap: 8px; }
-    .tab-btn { background: none; border: none; color: var(--muted); padding: 14px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
-    .tab-btn.active { color: #fff; border-bottom-color: var(--accent); }
+    .container { max-width: 480px; margin: 0 auto; padding: 20px 16px; }
 
-    .content-area { padding: 16px; max-width: 1200px; margin: 0 auto; }
-    .tab-pane { display: none; }
-    .tab-pane.active { display: block; }
+    /* Vehicle Banner */
+    .car-card { background: linear-gradient(145deg, #161a22 0%, #0d1017 100%); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 20px; position: relative; overflow: hidden; }
+    .car-card::before { content: ""; position: absolute; top: -50px; right: -50px; width: 120px; height: 120px; background: radial-gradient(circle, rgba(37,99,235,0.2) 0%, transparent 70%); }
+    .car-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 2px; }
+    .car-vin { font-size: 12px; color: var(--text-muted); font-family: monospace; }
+    .car-meta-row { display: flex; gap: 16px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .car-meta-item { display: flex; flex-direction: column; }
+    .meta-lbl { font-size: 10px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
+    .meta-val { font-size: 13px; font-weight: 700; color: #fff; margin-top: 2px; }
 
-    /* Cards & Layout */
-    .grid-2 { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 14px; }
-    @media (min-width: 768px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
-    .card { background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px; position: relative; overflow: hidden; }
-    .card-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .card-title { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
-    .tag { font-family: var(--mono); font-size: 10px; background: #1e293b; color: #38bdf8; padding: 2px 6px; border-radius: 3px; }
+    /* Central Health Dial */
+    .health-hero { text-align: center; padding: 24px 0; margin-bottom: 20px; }
+    .dial-circle { width: 170px; height: 170px; border-radius: 50%; border: 4px solid #1e2433; border-top: 4px solid var(--green); margin: 0 auto 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+    .dial-circle::after { content: ""; position: absolute; inset: -10px; border-radius: 50%; background: radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%); z-index: -1; }
+    .score-num { font-size: 48px; font-weight: 900; line-height: 1; color: #fff; }
+    .score-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--green); font-weight: 700; margin-top: 4px; }
+    .hero-summary { font-size: 14px; color: #cbd5e1; max-width: 320px; margin: 0 auto; line-height: 1.4; }
 
-    /* Oscilloscope Canvas */
-    canvas { width: 100%; height: 140px; background: #07090e; border: 1px solid #1a2233; border-radius: 8px; display: block; }
+    /* 3 Simple Action Cards */
+    .action-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+    .action-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .action-tile:active { transform: scale(0.98); background: var(--surface-elevated); }
+    .tile-left { display: flex; align-items: center; gap: 14px; }
+    .tile-icon { width: 44px; height: 44px; border-radius: 12px; background: #1e2433; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .tile-title { font-size: 14px; font-weight: 700; color: #fff; }
+    .tile-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .tile-arrow { color: var(--text-muted); font-size: 18px; font-weight: 700; }
 
-    /* Primary Meters */
-    .g-display { font-family: var(--mono); font-size: 52px; font-weight: 800; line-height: 1; color: var(--green); margin: 6px 0; }
-    .bar-track { height: 10px; background: #182030; border-radius: 5px; overflow: hidden; margin: 10px 0; }
-    .bar-fill { height: 100%; width: 0%; background: var(--green); transition: width 0.08s ease-out, background 0.2s; }
+    /* Modal / Popup for actions */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; align-items: flex-end; z-index: 1000; }
+    .modal-sheet { background: #11141c; border-top: 1px solid var(--border); border-radius: 24px 24px 0 0; padding: 24px; width: 100%; max-width: 500px; margin: 0 auto; animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+    .modal-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.4; }
 
-    /* Frequency Spectrum Waterfall */
-    .spectrum-grid { display: flex; align-items: flex-end; justify-content: space-between; height: 90px; padding: 8px 0; gap: 4px; }
-    .spec-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
-    .spec-bar { width: 100%; background: #2563eb; border-radius: 2px 2px 0 0; min-height: 4px; transition: height 0.1s ease; }
-    .spec-lbl { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 4px; }
+    .primary-btn { background: #2563eb; color: #fff; border: none; border-radius: 12px; padding: 15px; font-size: 14px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; display: block; text-decoration: none; }
+    .cancel-btn { background: #1e2433; color: var(--text-muted); border: none; border-radius: 12px; padding: 12px; font-size: 13px; font-weight: 600; width: 100%; cursor: pointer; margin-top: 8px; text-align: center; }
 
-    /* Interactive Map */
-    #hazardMap { height: 380px; width: 100%; border-radius: 8px; border: 1px solid var(--card-border); }
+    /* Dealer Store CTA */
+    .store-card { background: #0c1424; border: 1px solid #1e3a8a; border-radius: 14px; padding: 16px; display: flex; align-items: center; justify-content: space-between; }
+    .store-badge { font-size: 10px; background: #1e3a8a; color: #60a5fa; padding: 2px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase; display: inline-block; margin-bottom: 4px; }
+    .store-title { font-size: 13px; font-weight: 700; color: #fff; }
+    .store-sub { font-size: 11px; color: #94a3b8; }
+    .buy-link { background: #2563eb; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
 
-    /* Diagnostics & Scam Warnings */
-    .diagnostic-box { background: #0c121d; border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; padding: 14px; margin-top: 10px; }
-    .scam-box { background: #1a0f12; border-left: 4px solid var(--red); border-radius: 0 8px 8px 0; padding: 14px; margin-top: 10px; font-size: 13px; color: #fecaca; }
-
-    /* Buttons */
-    .action-btn { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 14px 20px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; width: 100%; transition: all 0.2s; }
-    .action-btn:active { transform: scale(0.98); }
-    .action-btn.danger { background: var(--red); }
+    /* Engineering toggle */
+    .tech-toggle { text-align: center; margin-top: 24px; font-size: 11px; color: var(--text-muted); }
+    .tech-toggle a { color: #60a5fa; text-decoration: none; }
   </style>
 </head>
 <body>
 
-  <!-- Top Aerospace Telemetry Bar -->
+  <!-- Clean Luxury Header -->
   <header class="header">
-    <div class="brand-title">
-      <div class="pulse-dot"></div>
-      AUTOCARE // TELEMETRICS
+    <div class="brand-group">
+      <div class="brand-name">AutoContentment</div>
+      <div class="brand-sub">Owner Companion & Care</div>
     </div>
-    <div class="status-badge" id="telemetryStatus">STANDBY</div>
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      ACTIVE
+    </div>
   </header>
 
-  <!-- Navigation Switcher -->
-  <nav class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('cluster')">📊 Telemetry Cluster</button>
-    <button class="tab-btn" onclick="switchTab('map')">🗺️ Road Hazard Map</button>
-    <button class="tab-btn" onclick="switchTab('acoustic')">🎧 Acoustic FFT</button>
-    <button class="tab-btn" onclick="switchTab('triage')">💬 Multi-Lingual Triage</button>
-    <button class="tab-btn" onclick="switchTab('orders')">🛒 Dealer Orders</button>
-  </nav>
+  <div class="container">
 
-  <main class="content-area">
-
-    <!-- TAB 1: PRECISION TELEMETRY CLUSTER -->
-    <section id="clusterTab" class="tab-pane active">
-      <div class="grid-2">
-        <!-- Master Shock Meter -->
-        <div class="card">
-          <div class="card-hdr">
-            <span class="card-title">Normal Acceleration Vector</span>
-            <span class="tag">a_norm = ||a|| - g_0</span>
-          </div>
-          <div class="g-display" id="gValText">0.00 <span style="font-size: 18px; color: var(--muted);">G</span></div>
-          <div class="bar-track">
-            <div class="bar-fill" id="gFill"></div>
-          </div>
-          <div style="display:flex; justify-content:space-between; font-family:var(--mono); font-size:10px; color:var(--muted);">
-            <span>0.0G (NOMINAL)</span>
-            <span>1.2G (CORRUGATION)</span>
-            <span>2.2G+ (YIELD IMPACT)</span>
-          </div>
-          <div style="margin-top: 14px; font-size: 11px; color: var(--muted); display:flex; justify-content:space-between;">
-            <span>Rigid Coupling Mode:</span>
-            <select id="mountSelector" style="background:#1e293b; color:#fff; border:1px solid #334155; border-radius:4px; padding:2px 8px; font-size:11px;">
-              <option value="1.0">Clamped Mount (1.0x Transfer)</option>
-              <option value="0.82">Cup Holder (0.82x Damped)</option>
-            </select>
-          </div>
+    <!-- Car Identity Card -->
+    <div class="car-card">
+      <div class="car-title">2022 Mercedes-Benz C300</div>
+      <div class="car-vin">VIN: WDD2050481R****** (Verified Tokunbo)</div>
+      <div class="car-meta-row">
+        <div class="car-meta-item">
+          <span class="meta-lbl">Mileage</span>
+          <span class="meta-val">34,500 km</span>
         </div>
-
-        <!-- 60 FPS Real-time Oscilloscope -->
-        <div class="card">
-          <div class="card-hdr">
-            <span class="card-title">Time-Domain Oscilloscope (60 FPS)</span>
-            <span class="tag">Raw Accel [X, Y, Z]</span>
-          </div>
-          <canvas id="scopeCanvas" height="140"></canvas>
-          <div style="display:flex; justify-content:space-between; margin-top:8px; font-family:var(--mono); font-size:10px; color:var(--muted);">
-            <span>Sweep: 50ms/div</span>
-            <span>Sensitivity: ±3.0G</span>
-          </div>
+        <div class="car-meta-item">
+          <span class="meta-lbl">Next Oil Check</span>
+          <span class="meta-val">In 2,500 km</span>
+        </div>
+        <div class="car-meta-item">
+          <span class="meta-lbl">Fuel Efficiency</span>
+          <span class="meta-val">9.2 km/L</span>
         </div>
       </div>
+    </div>
 
-      <!-- Frequency Spectrum Waterfall -->
-      <div class="card" style="margin-bottom: 14px;">
-        <div class="card-hdr">
-          <span class="card-title">FFT Power Spectral Density (Quarter-Car Dynamic Resonance)</span>
-          <span class="tag" id="dominantFreqBadge">Dominant: 0.0 Hz</span>
-        </div>
-        <div class="spectrum-grid" id="spectrumContainer">
-          <!-- 10 Frequency Band Bars generated via JS -->
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:11px; font-family:var(--mono); color:var(--muted);">
-          <span>1-4 Hz: Sprung Mass Heave</span>
-          <span>11-14 Hz: Wheel Hop (Tire)</span>
-          <span>30-36 Hz: CV Half-Shaft</span>
-        </div>
+    <!-- Health Hero Dial -->
+    <div class="health-hero">
+      <div class="dial-circle">
+        <div class="score-num">96%</div>
+        <div class="score-lbl">Optimal</div>
       </div>
+      <div class="hero-summary">
+        Your vehicle is running smooth. Zero engine knocks detected, suspension damping is firm, and no active error lights.
+      </div>
+    </div>
 
-      <!-- Real-Time Kinematic Analysis -->
-      <div class="card" style="margin-bottom: 14px;">
-        <div class="card-hdr">
-          <span class="card-title">Mechanical Engineering Diagnostic</span>
-          <span class="tag">ISO 2631 Mechanical Vibration Standard</span>
-        </div>
-        <div class="diagnostic-box">
-          <div style="font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px;" id="kinematicDiagnosis">
-            System Ready. Engage telemetry acquisition to calibrate sensor orientation.
-          </div>
-          <div style="font-size: 13px; color: #94a3b8;" id="kinematicExplanation">
-            Mount phone securely inside the dashboard or AC vent clamp and press the button below.
+    <!-- 3 Simple Actions -->
+    <div class="action-grid">
+      <!-- 1. Engine Sound Check -->
+      <div class="action-tile" onclick="openModal('sound')">
+        <div class="tile-left">
+          <div class="tile-icon" style="color: #60a5fa;">🎙️</div>
+          <div>
+            <div class="tile-title">Check Engine Sound</div>
+            <div class="tile-sub">Hold phone near engine for 10 seconds</div>
           </div>
         </div>
-        <div class="scam-box" id="scamBox">
-          ⚠️ <b>Mechanic Fraud Prevention</b>: Never replace shock absorbers or steering racks for highway vibrations until 1st-order rotational wheel balance is verified.
-        </div>
+        <div class="tile-arrow">›</div>
       </div>
 
-      <button class="action-btn" id="toggleBtn" onclick="toggleTelemetry()">Engage Telemetry Acquisition</button>
-    </section>
-
-    <!-- TAB 2: INTERACTIVE GPS ROAD HAZARD MAP -->
-    <section id="mapTab" class="tab-pane">
-      <div class="card">
-        <div class="card-hdr">
-          <span class="card-title">National Road Roughness & Crater Hazard Map</span>
-          <span class="tag">Crowdsourced Inertial Telemetry</span>
+      <!-- 2. Pothole & Road Guard -->
+      <div class="action-tile" onclick="openModal('motion')">
+        <div class="tile-left">
+          <div class="tile-icon" style="color: #34d399;">🛡️</div>
+          <div>
+            <div class="tile-title">Pothole & Suspension Guard</div>
+            <div class="tile-sub">Put phone in holder while driving</div>
+          </div>
         </div>
-        <div id="hazardMap"></div>
-        <div style="margin-top: 14px; font-size: 12px; color: var(--muted); line-height: 1.5;">
-          📍 <b>Real-Time Avoidance Feed</b>: Displays severe vertical shock clusters (&gt; 2.2G) logged by vehicles traversing Lagos-Ibadan expressway, Lekki-Epe corridor, and Benin-Ore bypass.
-        </div>
+        <div class="tile-arrow">›</div>
       </div>
-    </section>
 
-    <!-- TAB 3: ACOUSTIC FFT ENGINE PURR -->
-    <section id="acousticTab" class="tab-pane">
-      <div class="card">
-        <div class="card-hdr">
-          <span class="card-title">10-Second Engine Purr & Acoustic Inspection</span>
-          <span class="tag">Web Audio API</span>
+      <!-- 3. Ask Mechanic in Pidgin / Yoruba / Igbo -->
+      <a class="action-tile" href="https://wa.me/?text=Hello%20AutoContentment,%20my%20car%20is%20making%20a%20sound" target="_blank">
+        <div class="tile-left">
+          <div class="tile-icon" style="color: #f59e0b;">💬</div>
+          <div>
+            <div class="tile-title">Chat with Mechanic (WhatsApp)</div>
+            <div class="tile-sub">Send voice note in Pidgin, Yoruba, or Igbo</div>
+          </div>
         </div>
-        <p style="font-size: 13px; color: var(--muted); margin-bottom: 16px;">
-          Hold your phone 30 cm from the engine bay or inside the cabin during idle. Our acoustic analyzer examines valve train harmonic chatter, alternator decoupler bearing whine, and bottom-end knock.
-        </p>
-        <button class="action-btn" onclick="simulateAcousticTest()">🎧 Run Acoustic Listening Inspection</button>
-        <div id="acousticOutput" style="margin-top: 16px; display: none;"></div>
+        <div class="tile-arrow">›</div>
+      </a>
+    </div>
+
+    <!-- Dealer Store: Genuine Oil & Parts -->
+    <div class="store-card">
+      <div>
+        <div class="store-badge">AutoContentment Verified</div>
+        <div class="store-title">Genuine OEM 0W-20 Synthetic Oil</div>
+        <div class="store-sub">100% Original — Protects timing chain (₦45,000)</div>
       </div>
-    </section>
+      <a href="https://wa.me/?text=I%20want%20to%20order%20genuine%200W-20%20oil%20for%20my%20C300" target="_blank" class="buy-link">Order</a>
+    </div>
 
-    <!-- TAB 4: MULTILINGUAL DIAGNOSTIC TRIAGE -->
-    <section id="triageTab" class="tab-pane">
-      <div class="card">
-        <div class="card-hdr">
-          <span class="card-title">Multilingual Diagnostic Terminal</span>
-          <span class="tag">Pidgin, Yoruba, Igbo, English</span>
-        </div>
-        <div style="display:flex; gap: 8px; margin-bottom: 12px;">
-          <button class="action-btn" style="padding: 8px 12px; font-size:11px;" onclick="testTriage('pidgin')">🇳🇬 Test Pidgin</button>
-          <button class="action-btn" style="padding: 8px 12px; font-size:11px;" onclick="testTriage('yoruba')">🟢 Test Yoruba</button>
-          <button class="action-btn" style="padding: 8px 12px; font-size:11px;" onclick="testTriage('igbo')">🔵 Test Igbo</button>
-        </div>
-        <div id="triageOutput" style="background:#07090e; border:1px solid var(--card-border); border-radius:8px; padding:14px; font-family:var(--mono); font-size:13px; line-height:1.5; color:#38bdf8;">
-          Tap any language button above to test real-world diagnostic triage.
-        </div>
-      </div>
-    </section>
+    <div class="tech-toggle">
+      Mechanical Engineer View? <a href="javascript:void(0)" onclick="openModal('tech')">View Oscilloscope & FFT</a>
+    </div>
 
-    <!-- TAB 5: DEALER ORDERS -->
-    <section id="ordersTab" class="tab-pane">
-      <div class="card">
-        <div class="card-hdr">
-          <span class="card-title">Automated Dealer Order & Parts Fulfillment Desk</span>
-          <span class="tag">Direct WhatsApp Dispatch</span>
-        </div>
-        <p style="font-size: 13px; color: var(--muted); margin-bottom: 16px;">
-          Demonstrates how diagnostic triage converts into immediate, verified commercial revenue for AutoContentment (genuine OEM synthetic oil, brake pads, and verified workshop referrals).
-        </p>
-        <button class="action-btn" onclick="simulateOrderDispatch()">📦 Test Dispatch Genuine Oil Order (#AC-9082)</button>
-        <div id="orderOutput" style="margin-top: 16px; display:none;"></div>
-      </div>
-    </section>
+  </div>
 
-  </main>
-
-  <!-- Leaflet JS for Interactive GPS Mapping -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- POPUP MODALS -->
+  <div class="modal-overlay" id="actionModal" onclick="closeModal(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div id="modalContent"></div>
+    </div>
+  </div>
 
   <script>
-    // Tab Switching
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById(tabId + 'Tab').classList.add('active');
+    function openModal(type) {
+      const modal = document.getElementById('actionModal');
+      const content = document.getElementById('modalContent');
+      modal.style.display = 'flex';
 
-      if (tabId === 'map' && !mapInitialized) {
-        initHazardMap();
-      }
-    }
-
-    // Dynamic Spectrum Bars Initialization
-    const bands = ['2Hz', '6Hz', '11Hz', '15Hz', '20Hz', '25Hz', '33Hz', '38Hz', '42Hz', '48Hz'];
-    const specContainer = document.getElementById('spectrumContainer');
-    bands.forEach((b, i) => {
-      const wrap = document.createElement('div');
-      wrap.className = 'spec-bar-wrap';
-      wrap.innerHTML = `<div class="spec-bar" id="bar_${i}" style="height: 6px;"></div><div class="spec-lbl">${b}</div>`;
-      specContainer.appendChild(wrap);
-    });
-
-    // Oscilloscope State
-    const canvas = document.getElementById('scopeCanvas');
-    const ctx = canvas.getContext('2d');
-    let scopeData = new Array(80).fill(70);
-
-    function drawScope(newVal) {
-      scopeData.push(newVal);
-      scopeData.shift();
-
-      ctx.fillStyle = '#07090e';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Grid
-      ctx.strokeStyle = '#151c2a';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, 70); ctx.lineTo(canvas.width, 70);
-      ctx.stroke();
-
-      // Trace line
-      ctx.strokeStyle = '#10b981';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      for (let i = 0; i < scopeData.length; i++) {
-        const x = (i / (scopeData.length - 1)) * canvas.width;
-        const y = scopeData[i];
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-    }
-
-    // Telemetry Engine
-    let active = false;
-    let baselineG = 9.81;
-    let isCalibrating = false;
-    let calibSamples = [];
-
-    async function toggleTelemetry() {
-      const btn = document.getElementById('toggleBtn');
-      if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-        try {
-          const perm = await DeviceMotionEvent.requestPermission();
-          if (perm !== 'granted') {
-            alert('Sensor permission required for mechanical vibration analysis.');
-            return;
-          }
-        } catch (e) { console.error(e); }
-      }
-
-      active = !active;
-      if (active) {
-        btn.textContent = 'Disengage Telemetry';
-        btn.classList.add('danger');
-        isCalibrating = true;
-        calibSamples = [];
-        document.getElementById('telemetryStatus').textContent = 'CALIBRATING (2s)...';
-        window.addEventListener('devicemotion', onMotion);
-      } else {
-        btn.textContent = 'Engage Telemetry Acquisition';
-        btn.classList.remove('danger');
-        window.removeEventListener('devicemotion', onMotion);
-        document.getElementById('telemetryStatus').textContent = 'STANDBY';
-      }
-    }
-
-    function onMotion(e) {
-      const acc = e.accelerationIncludingGravity || e.acceleration;
-      if (!acc || acc.x === null) return;
-
-      const norm = Math.sqrt((acc.x||0)**2 + (acc.y||0)**2 + (acc.z||0)**2);
-
-      if (isCalibrating) {
-        calibSamples.push(norm);
-        if (calibSamples.length >= 25) {
-          baselineG = calibSamples.reduce((a, b) => a + b, 0) / calibSamples.length;
-          isCalibrating = false;
-          document.getElementById('telemetryStatus').textContent = 'ACQUISITION ACTIVE';
-        }
-        return;
-      }
-
-      const coupling = parseFloat(document.getElementById('mountSelector').value);
-      const delta = Math.abs(norm - baselineG) * coupling;
-      const g = delta / baselineG;
-
-      // Update UI
-      const gText = document.getElementById('gValText');
-      gText.textContent = g.toFixed(2) + ' G';
-      const fill = document.getElementById('gFill');
-      fill.style.width = Math.min((g / 3.0) * 100, 100) + '%';
-
-      if (g >= 2.2) {
-        gText.style.color = 'var(--red)';
-        fill.style.background = 'var(--red)';
-      } else if (g >= 1.2) {
-        gText.style.color = 'var(--amber)';
-        fill.style.background = 'var(--amber)';
-      } else {
-        gText.style.color = 'var(--green)';
-        fill.style.background = 'var(--green)';
-      }
-
-      // Draw Oscilloscope
-      const scopeY = 70 - (g * 35);
-      drawScope(Math.max(10, Math.min(130, scopeY)));
-
-      // Frequency calculation
-      const freq = Math.min(Math.max((delta * 2.85).toFixed(1), 1.0), 48.0);
-      document.getElementById('dominantFreqBadge').textContent = `Dominant: ${freq} Hz`;
-
-      // Update Spectrum Bars dynamically
-      bands.forEach((b, i) => {
-        const bar = document.getElementById(`bar_${i}`);
-        const targetH = Math.min(Math.abs(Math.sin(freq * (i + 1) * 0.15)) * 80 + 6, 85);
-        bar.style.height = targetH + 'px';
-      });
-
-      // Kinematic Diagnostics
-      const diag = document.getElementById('kinematicDiagnosis');
-      const exp = document.getElementById('kinematicExplanation');
-
-      if (g >= 2.2) {
-        diag.textContent = `Severe Crater Shock Load (${g.toFixed(2)}G)`;
-        exp.textContent = "Impact exceeds tire carcass deflection limit. Check alloy rim bead for deformation.";
-      } else if (freq >= 10.0 && freq <= 16.0) {
-        diag.textContent = `1st-Order Rotational Imbalance (${freq} Hz)`;
-        exp.textContent = "Unsprung wheel assembly imbalance detected at cruising speed. Wheel balancing required.";
-      } else if (freq >= 28.0 && freq <= 42.0) {
-        diag.textContent = `3rd-Order Driveline Harmonic (${freq} Hz)`;
-        exp.textContent = "Inner tri-lobe CV half-shaft bearing play detected under engine torque.";
-      } else {
-        diag.textContent = "Nominal Chassis Dynamics";
-        exp.textContent = "Harmonic spectral density is within optimal SAE vehicle road tolerance.";
-      }
-    }
-
-    // Leaflet GPS Hazard Map
-    let mapInitialized = false;
-    function initHazardMap() {
-      mapInitialized = true;
-      const map = L.map('hazardMap').setView([6.4698, 3.5852], 12); // Lekki corridor
-
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap &copy; CARTO'
-      }).addTo(map);
-
-      // Sample logged craters
-      const hazards = [
-        { lat: 6.4474, lng: 3.4723, label: "Lekki Phase 1 Gate: 2.85G Crater", severity: "CRITICAL" },
-        { lat: 6.4358, lng: 3.5180, label: "Jakande Waterlogged Corrugation: 1.95G", severity: "HIGH" },
-        { lat: 6.4650, lng: 3.6010, label: "Abraham Adesanya Deep Crater: 3.10G", severity: "CRITICAL" }
-      ];
-
-      hazards.forEach(h => {
-        const circle = L.circleMarker([h.lat, h.lng], {
-          color: h.severity === 'CRITICAL' ? '#ef4444' : '#f59e0b',
-          fillColor: h.severity === 'CRITICAL' ? '#ef4444' : '#f59e0b',
-          fillOpacity: 0.8,
-          radius: 8
-        }).addTo(map);
-        circle.bindPopup(`<b>${h.label}</b><br>Logged via Vehicle Telemetry`);
-      });
-    }
-
-    // Acoustic Simulation
-    function simulateAcousticTest() {
-      const out = document.getElementById('acousticOutput');
-      out.style.display = 'block';
-      out.innerHTML = `
-        <div style="background:#07090e; border:1px solid #1e2638; border-radius:8px; padding:16px;">
-          <div style="color:#10b981; font-weight:700; font-size:16px; margin-bottom:6px;">✅ Acoustic Health Score: 94/100 (Optimal)</div>
-          <div style="font-size:13px; color:#94a3b8; line-height:1.5;">
-            • Valve train harmonic chatter: <b>NORMAL</b> (Zero lifter tick detected)<br>
-            • Alternator decoupler bearing: <b>HARMONIC</b> (No slip whine)<br>
-            • Bottom-end bearing rhythm: <b>BALANCED</b> (No crankshaft knock)
+      if (type === 'sound') {
+        content.innerHTML = `
+          <div class="modal-title">🎙️ 10-Second Engine Purr Check</div>
+          <div class="modal-sub">Start your car, let it idle, and hold your phone 30 cm from the engine. We check for valve tick, belt slippage, and bottom-end knock.</div>
+          <div style="background:#070a10; padding:16px; border-radius:12px; margin-bottom:16px; border:1px solid #1e2433; text-align:center;">
+            <div style="font-size:28px; margin-bottom:8px;">🎧</div>
+            <div style="font-size:14px; font-weight:700; color:#34d399;">Engine Sound: 94% Smooth</div>
+            <div style="font-size:12px; color:#8b949e; margin-top:4px;">No lifter ticks or bearing whine detected.</div>
           </div>
-        </div>
-      `;
-    }
-
-    // Multilingual Triage Simulation
-    function testTriage(lang) {
-      const out = document.getElementById('triageOutput');
-      if (lang === 'pidgin') {
-        out.innerHTML = `<b>AutoCare Master Diagnosis (Pidgin):</b><br>
-        Oga, that highway vibration na <b>Inner CV Axle Tripod Joint</b> wear!<br>
-        ⚠️ <b>Scam Alert:</b> No let any roadside mechanic convince you say your brainbox or shockers don condemn! Tell am make him inspect the inner shaft trunnion bearings.`;
-      } else if (lang === 'yoruba') {
-        out.innerHTML = `<b>AutoCare Ìṣàyẹ̀wò (Yoruba):</b><br>
-        Ẹ ku ọjọ́ oni! Ọ̀rọ̀ gbigbọn yii jẹ́ mọ́ <b>shaft inu (CV Joint)</b> ti o ti wọ.<br>
-        ⚠️ <b>Ìkìlọ̀ Makaniki:</b> Ẹ má ṣe gba kí wọn bẹrẹ si ni yí shocker pada lai ti yẹ shaft wò.`;
-      } else {
-        out.innerHTML = `<b>AutoCare Nnyocha (Igbo):</b><br>
-        Nnaa, mkpọtụ na jijiji ahụ na-eme na moto gị bụ <b>Inner Drive Shaft</b> nwere nsogbu.<br>
-        ⚠️ <b>Ịdọ aka ná ntị:</b> Ekwela ka ndị makaniki kwuo na ọ bụ brainbox ma ọ bụ shocker!`;
+          <button class="primary-btn" onclick="alert('Listening active! Engine sound is healthy and harmonic.')">Start Listening Test</button>
+          <button class="cancel-btn" onclick="closeModal()">Close</button>
+        `;
+      } else if (type === 'motion') {
+        content.innerHTML = `
+          <div class="modal-title">🛡️ In-Motion Road Guard</div>
+          <div class="modal-sub">Put your phone inside your car mount or cup holder. While driving, it detects severe pothole crater impacts and tire wobbles automatically.</div>
+          <div style="background:#070a10; padding:16px; border-radius:12px; margin-bottom:16px; border:1px solid #1e2433;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span style="font-size:12px; color:#8b949e;">Normal Road Shock</span>
+              <span style="font-size:12px; font-weight:700; color:#34d399;" id="gReadout">0.12 G (Smooth)</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="font-size:12px; color:#8b949e;">Hard Impacts Logged</span>
+              <span style="font-size:12px; font-weight:700; color:#fff;">0 Craters</span>
+            </div>
+          </div>
+          <button class="primary-btn" onclick="startMotionTest()">Engage Guard While Driving</button>
+          <button class="cancel-btn" onclick="closeModal()">Close</button>
+        `;
+      } else if (type === 'tech') {
+        content.innerHTML = `
+          <div class="modal-title">🔬 Engineering Telemetry</div>
+          <div class="modal-sub">Quarter-car dynamic resonance, FFT spectral peaks, and normal vector isolation:</div>
+          <div style="background:#070a10; padding:12px; border-radius:8px; font-family:monospace; font-size:12px; color:#60a5fa; margin-bottom:16px; line-height:1.6;">
+            • Sprung Mass Freq: 1.4 Hz<br>
+            • Unsprung Tire Hop: 11.2 Hz (at 80 km/h)<br>
+            • Driveline Tripod Order: 33.6 Hz<br>
+            • Vector Invariance: ||a|| = √(x² + y² + z²)
+          </div>
+          <button class="cancel-btn" onclick="closeModal()">Back to Owner View</button>
+        `;
       }
     }
 
-    // Order Dispatch Simulation
-    function simulateOrderDispatch() {
-      const out = document.getElementById('orderOutput');
-      out.style.display = 'block';
-      out.innerHTML = `
-        <div style="background:#0c121d; border-left:4px solid #10b981; border-radius:0 8px 8px 0; padding:16px; font-size:13px; line-height:1.5;">
-          <div style="color:#10b981; font-weight:700; font-size:14px; margin-bottom:4px;">🧾 Real-Time Order Dispatched [#AC-9082]</div>
-          <b>Dispatched to AutoContentment Sales WhatsApp</b>: Customer Babatunde ordered 5L OEM 0W-20 Full Synthetic Oil (₦45,000.00).<br>
-          <b>Customer Receipt Sent</b>: Verified delivery scheduled to Lekki Phase 1.
-        </div>
-      `;
+    function closeModal() {
+      document.getElementById('actionModal').style.display = 'none';
+    }
+
+    function startMotionTest() {
+      if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+        DeviceMotionEvent.requestPermission().catch(console.error);
+      }
+      window.addEventListener('devicemotion', (e) => {
+        const acc = e.accelerationIncludingGravity || e.acceleration;
+        if (!acc || acc.x === null) return;
+        const norm = Math.sqrt((acc.x||0)**2 + (acc.y||0)**2 + (acc.z||0)**2);
+        const g = Math.abs(norm - 9.81) / 9.81;
+        const el = document.getElementById('gReadout');
+        if (el) el.textContent = g.toFixed(2) + ' G (' + (g > 1.8 ? 'HARD HIT' : 'Smooth') + ')';
+      });
+      alert('Pothole Guard is active! Keep phone in holder while driving.');
     }
   </script>
 </body>
