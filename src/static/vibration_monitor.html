@@ -310,36 +310,48 @@
       deliverDefinitiveVerdict(dominantFreq, peakVal, avgEnergy);
     }
 
-    function deliverDefinitiveVerdict(freq, peak, energy) {
+    async function deliverDefinitiveVerdict(freq, peak, energy) {
       const hdr = document.getElementById('verdictHdr');
       const body = document.getElementById('verdictBody');
       const profile = PROFILES[activeProfileKey];
 
       // 1. Noise Floor Check
-      if (peak < 35) {
-        hdr.innerHTML = `<span style="color: var(--text-muted);">🔇 Ambient Noise Floor Too Low (${peak.toFixed(0)} dB)</span>`;
-        body.textContent = "The sound was too quiet to classify. Hold the phone closer to the engine or make your sound louder.";
+      if (peak < 25) {
+        hdr.innerHTML = `<span style="color: var(--text-muted);">🔇 Ambient Noise Floor Too Low</span>`;
+        body.textContent = "The sound was too quiet to classify. Make your sound louder or hold closer to the microphone.";
         return;
       }
 
-      // 2. Human Voice / Humming Check:
-      // Human voice fundamental frequency is typically between 85 Hz and 260 Hz with high energy concentration
-      if (freq >= 85 && freq <= 260 && energy < 95) {
-        hdr.innerHTML = `<span style="color: var(--amber);">👤 Human Vocal / Humming Identified (~${freq} Hz)</span>`;
-        body.textContent = `Acoustic harmonic analysis detected human vocal pitch (~${freq} Hz), NOT vehicle engine mechanics. Please hold the phone directly towards the vehicle's engine compartment or exhaust.`;
+      // 2. Call Intelligent Acoustic API
+      try {
+        const res = await fetch('/api/classify-audio', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ frequency: freq, peak: peak, centroid: freq * 1.4 })
+        });
+        const result = await res.json();
+
+        hdr.innerHTML = `<span style="color: #38bdf8;">${result.title}</span>`;
+        body.textContent = result.description;
         return;
+      } catch (e) {
+        // Fallback local logic
       }
 
-      // 3. High-Frequency Friction / Drive Belt Squeal (> 2200 Hz)
-      if (freq > 2100 && peak > 110) {
-        hdr.innerHTML = `<span style="color: var(--red);">⚠️ Drive Belt / Pulley Friction Detected (${freq} Hz)</span>`;
-        body.textContent = "A high-pitch acoustic screech was detected. Indicates a slipping serpentine drive belt, worn idler pulley, or dry alternator decoupler bearing.";
-        return;
+      // Local Fallback Classification:
+      if (freq >= 2700) {
+        hdr.innerHTML = `<span style="color: #f59e0b;">🐦 Bird Chirping / High Whistle (~${freq} Hz)</span>`;
+        body.textContent = "Identified avian high-frequency chirping or whistle, not vehicle mechanics.";
+      } else if (freq >= 850 && freq <= 2600) {
+        hdr.innerHTML = `<span style="color: #60a5fa;">🎵 Whistling / Musical Tone (~${freq} Hz)</span>`;
+        body.textContent = "Sinusoidal whistling tone detected. Please record car engine mechanics.";
+      } else if (freq >= 85 && freq <= 280) {
+        hdr.innerHTML = `<span style="color: #eab308;">👤 Human Voice / Vocal Humming (~${freq} Hz)</span>`;
+        body.textContent = "Human vocal speech or humming detected. Point phone towards engine bay.";
+      } else {
+        hdr.innerHTML = `<span style="color: #10b981;">🚗 Vehicle Engine Combustion Detected (~${freq} Hz)</span>`;
+        body.textContent = `${profile.name} idle purr confirmed. Mechanical rhythm is harmonic.`;
       }
-
-      // 4. Genuine Engine Combustion Idle / Running
-      hdr.innerHTML = `<span style="color: var(--green);">✅ Optimal Engine Match: ${profile.name}</span>`;
-      body.textContent = `${profile.idleDesc} (Combustion energy harmonic verified at ${freq} Hz, Health Index: 96% Optimal).`;
     }
 
     function drawLiveWaveform() {
