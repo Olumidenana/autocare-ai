@@ -60,8 +60,17 @@ async def get_monitor():
     return HTMLResponse(content="<h1>AutoCare Telemetry Cluster Initializing...</h1>", status_code=200)
 
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 async def root():
+    """
+    Direct root access serves the high-performance Telemetry Dashboard automatically.
+    """
+    return await get_monitor()
+
+
+@app.get("/api/status")
+async def api_status():
+    """System health & API specifications."""
     return {
         "app": settings.APP_NAME,
         "version": settings.APP_VERSION,
