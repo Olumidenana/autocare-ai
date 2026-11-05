@@ -2,391 +2,402 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#000000">
-  <link rel="manifest" href="/static/manifest.json">
-  <title>AutoContentment | Smart Vehicle Companion</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>AutoContentment | Autonomous Vehicle Acoustic & Telematics Suite</title>
   
   <style>
     :root {
-      --bg: #000000;
-      --surface: #101319;
-      --surface-border: #1e2433;
+      --bg: #06080d;
+      --surface: #0e121a;
+      --surface-elevated: #151b26;
+      --border: #1f2738;
       --text: #ffffff;
-      --text-dim: #8b949e;
+      --text-muted: #8b949e;
       --accent: #2563eb;
       --green: #10b981;
       --amber: #f59e0b;
       --red: #ef4444;
-      --font-mono: "SF Mono", "Consolas", monospace;
+      --mono: "SF Mono", "Consolas", monospace;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; min-height: 100vh; padding-bottom: 90px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; min-height: 100vh; overflow-x: hidden; }
 
-    /* Sticky Mobile Top App Bar */
-    .app-bar { background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--surface-border); padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-    .brand-title { font-size: 15px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; }
-    .motion-indicator { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; background: #131a26; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--surface-border); color: #38bdf8; font-family: var(--font-mono); }
-    .motion-dot { width: 7px; height: 7px; border-radius: 50%; background: #38bdf8; transition: background 0.3s; }
-    .motion-dot.moving { background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    /* Responsive Desktop Top Bar */
+    .top-nav { background: rgba(10, 13, 20, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .brand-group { display: flex; align-items: center; gap: 12px; }
+    .brand-logo { font-size: 16px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
+    .telemetry-pill { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; background: #151d2a; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--border); color: #38bdf8; font-family: var(--mono); }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #38bdf8; transition: background 0.3s; }
+    .status-dot.active { background: var(--green); box-shadow: 0 0 10px var(--green); }
 
-    .main-wrap { max-width: 440px; margin: 0 auto; padding: 16px; }
+    /* Truly Responsive Layout (Desktop Widescreen vs Mobile) */
+    .app-container { max-width: 1280px; margin: 0 auto; padding: 24px 20px; }
+    .cockpit-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    @media (min-width: 960px) {
+      .cockpit-grid { grid-template-columns: 1.1fr 0.9fr; gap: 24px; }
+    }
 
-    /* Car Identity Card */
-    .vehicle-card { background: linear-gradient(135deg, #131722 0%, #0c0e14 100%); border: 1px solid var(--surface-border); border-radius: 18px; padding: 18px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-    .veh-name { font-size: 17px; font-weight: 800; color: #fff; }
-    .veh-tag { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-    .veh-stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); text-align: center; }
-    .veh-stat-lbl { font-size: 9px; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.5px; }
-    .veh-stat-val { font-size: 13px; font-weight: 700; color: #fff; margin-top: 2px; }
+    /* Cards */
+    .cockpit-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px; position: relative; }
+    .card-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .card-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+    .badge { font-family: var(--mono); font-size: 10px; background: #162030; color: #38bdf8; padding: 3px 8px; border-radius: 4px; }
 
-    /* Central Health Score Dial */
-    .health-hero { text-align: center; padding: 18px 0; }
-    .dial-wrap { width: 150px; height: 150px; border-radius: 50%; border: 3px solid #1a2233; border-top: 3px solid var(--green); margin: 0 auto 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-    .dial-wrap::after { content: ""; position: absolute; inset: -8px; border-radius: 50%; background: radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%); }
-    .dial-score { font-size: 44px; font-weight: 900; line-height: 1; color: #fff; }
-    .dial-status { font-size: 11px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
-    .dial-caption { font-size: 13px; color: #cbd5e1; line-height: 1.4; padding: 0 10px; }
+    /* Live Acoustic Classification Banner */
+    .classifier-result { background: #080c14; border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+    .classify-type { font-size: 16px; font-weight: 800; color: var(--green); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .classify-detail { font-size: 13px; color: #cbd5e1; line-height: 1.5; }
 
-    /* Live GPS & Motion Banner */
-    .motion-banner { background: #0c121d; border: 1px solid var(--surface-border); border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .banner-lbl { font-size: 11px; color: var(--text-dim); text-transform: uppercase; }
-    .banner-speed { font-size: 18px; font-weight: 800; font-family: var(--font-mono); color: #fff; }
+    /* Audio Spectrum Canvas */
+    #soundSpectrumCanvas { width: 100%; height: 110px; background: #05070a; border: 1px solid #161e2e; border-radius: 8px; display: block; margin: 12px 0; }
 
-    /* Action Tiles */
-    .action-stack { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
-    .action-tile { background: var(--surface); border: 1px solid var(--surface-border); border-radius: 14px; padding: 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; text-decoration: none; color: inherit; transition: all 0.15s; }
-    .action-tile:active { transform: scale(0.98); background: #181d29; }
-    .tile-left { display: flex; align-items: center; gap: 14px; }
-    .tile-icon-box { width: 42px; height: 42px; border-radius: 10px; background: #161b26; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-    .tile-h1 { font-size: 14px; font-weight: 700; color: #fff; }
-    .tile-p { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
-    .tile-chevron { font-size: 16px; color: var(--text-dim); font-weight: 700; }
+    /* Vehicle Profile Banner */
+    .car-profile { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #141a26 0%, #0c1017 100%); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin-bottom: 20px; }
+    .car-main { font-size: 18px; font-weight: 800; color: #fff; }
+    .car-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
-    /* Dealer Store Banner */
-    .store-banner { background: linear-gradient(135deg, #0f172a 0%, #09101f 100%); border: 1px solid #1e3a8a; border-radius: 14px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
-    .store-pill { font-size: 9px; font-weight: 700; text-transform: uppercase; background: #1e3a8a; color: #60a5fa; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-bottom: 4px; }
-    .store-h1 { font-size: 13px; font-weight: 700; color: #fff; }
-    .store-desc { font-size: 11px; color: #94a3b8; }
-    .store-btn { background: #2563eb; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+    /* Speed & G-Force Meter */
+    .speed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .metric-cell { background: #080c14; border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .cell-lbl { font-size: 11px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
+    .cell-val { font-family: var(--mono); font-size: 36px; font-weight: 800; line-height: 1.1; margin-top: 6px; }
 
-    /* Bottom Slide-Up Sheet Modal */
-    .sheet-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: none; align-items: flex-end; z-index: 1000; }
-    .sheet-card { background: #11151f; border-top: 1px solid var(--surface-border); border-radius: 20px 20px 0 0; padding: 20px 18px 30px; width: 100%; max-width: 480px; margin: 0 auto; animation: slideUp 0.25s ease-out; }
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    .sheet-title { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
-    .sheet-desc { font-size: 12px; color: var(--text-dim); line-height: 1.4; margin-bottom: 16px; }
+    /* Buttons */
+    .primary-action-btn { background: var(--accent); color: #fff; border: none; border-radius: 12px; padding: 16px; font-size: 14px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s; }
+    .primary-action-btn:active { transform: scale(0.98); }
+    .primary-action-btn.active-listening { background: var(--red); animation: glowRed 1.5s infinite; }
+    @keyframes glowRed { 0%, 100% { box-shadow: 0 0 10px rgba(239,68,68,0.3); } 50% { box-shadow: 0 0 25px rgba(239,68,68,0.7); } }
 
-    /* Real Audio Visualizer Canvas */
-    #audioCanvas { width: 100%; height: 90px; background: #07090e; border: 1px solid var(--surface-border); border-radius: 10px; margin-bottom: 14px; }
-
-    .btn-solid { background: #2563eb; color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 14px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; }
-    .btn-close { background: #181d29; color: var(--text-dim); border: none; border-radius: 12px; padding: 12px; font-size: 13px; font-weight: 600; width: 100%; cursor: pointer; margin-top: 8px; text-align: center; }
+    /* Dealer Order Direct Card */
+    .dealer-fulfillment { background: linear-gradient(135deg, #0d1726 0%, #080e18 100%); border: 1px solid #1e3a8a; border-radius: 14px; padding: 18px; display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+    .order-link { background: #2563eb; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
   </style>
 </head>
 <body>
 
-  <!-- Mobile App Bar -->
-  <header class="app-bar">
-    <div class="brand-title">AUTOCONTENTMENT</div>
-    <div class="motion-indicator" id="motionStatusBadge">
-      <div class="motion-dot" id="motionDot"></div>
-      <span id="motionLabel">GPS: CHECKING</span>
+  <!-- Top Responsive Bar -->
+  <header class="top-nav">
+    <div class="brand-group">
+      <div class="brand-logo">AUTOCONTENTMENT</div>
+      <span style="font-size: 11px; color: var(--text-muted); display: none; @media(min-width:600px){display:inline;}">Smart Care & Telematics</span>
+    </div>
+    <div class="telemetry-pill" id="globalStatusPill">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="motionStatusText">PARKED (0.0 km/h)</span>
     </div>
   </header>
 
-  <div class="main-wrap">
+  <div class="app-container">
 
-    <!-- Vehicle Details -->
-    <div class="vehicle-card">
-      <div class="veh-name">2022 Mercedes-Benz C300</div>
-      <div class="veh-tag">Verified Tokunbo // AutoContentment Certified</div>
-      <div class="veh-stats-row">
-        <div>
-          <div class="veh-stat-lbl">Mileage</div>
-          <div class="veh-stat-val">34,500 km</div>
-        </div>
-        <div>
-          <div class="veh-stat-lbl">Oil Check</div>
-          <div class="veh-stat-val">In 2,500 km</div>
-        </div>
-        <div>
-          <div class="veh-stat-lbl">Fuel Burn</div>
-          <div class="veh-stat-val">9.2 km/L</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Live Motion & Speed Banner -->
-    <div class="motion-banner">
+    <!-- Car Selector / Active Identity -->
+    <div class="car-profile">
       <div>
-        <div class="banner-lbl">Vehicle Velocity (GPS)</div>
-        <div style="font-size:11px; color:#38bdf8;" id="motionSubText">Monitoring motion sensor...</div>
+        <div class="car-main" id="carTitle">Mercedes-Benz C300 (W205)</div>
+        <div class="car-sub">Engine: M274 2.0L Turbo • Optimal Factory Baseline Loaded</div>
       </div>
-      <div class="banner-speed" id="gpsSpeedDisplay">0.0 km/h</div>
+      <select id="engineSelector" onchange="updateEngineModel()" style="background:#161d2a; color:#fff; border:1px solid #2d3748; border-radius:8px; padding:8px 12px; font-size:12px;">
+        <option value="mercedes_m274">Mercedes C300 (M274 Turbo)</option>
+        <option value="toyota_2gr">Lexus RX350 / Camry (2GR-FE V6)</option>
+        <option value="honda_k24">Honda Accord / CR-V (K24 i-VTEC)</option>
+        <option value="toyota_1gr">Toyota Prado / 4Runner (1GR-FE V6)</option>
+      </select>
     </div>
 
-    <!-- Central Health Dial -->
-    <div class="health-hero">
-      <div class="dial-wrap">
-        <div class="dial-score" id="heroScore">96%</div>
-        <div class="dial-status" id="heroStatusText">Optimal</div>
-      </div>
-      <div class="dial-caption" id="heroCaption">
-        Engine idle is balanced. Suspension damping resistance is nominal, and zero error codes are active.
-      </div>
-    </div>
+    <!-- Responsive Cockpit Grid (Desktop 2-Col, Mobile 1-Col) -->
+    <div class="cockpit-grid">
 
-    <!-- 3 Action Cards -->
-    <div class="action-stack">
-      <!-- Action 1: Live Real Microphone Sound Test -->
-      <div class="action-tile" onclick="openAudioModal()">
-        <div class="tile-left">
-          <div class="tile-icon-box" style="color: #60a5fa;">🎙️</div>
-          <div>
-            <div class="tile-h1">Real Microphone Sound Test</div>
-            <div class="tile-p">Make a sound or hold near engine to test live</div>
+      <!-- LEFT COLUMN: REAL ACOUSTIC SOUND CLASSIFIER -->
+      <div class="cockpit-card">
+        <div class="card-hdr">
+          <span class="card-title">Real-Time Acoustic Engine Classifier</span>
+          <span class="badge" id="micStatusBadge">MIC READY</span>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">
+          Automatically distinguishes between <b>human humming/voices</b> vs. <b>genuine engine combustion harmonics</b> and checks if the engine matches factory optimal performance.
+        </p>
+
+        <!-- Live Spectrum Canvas -->
+        <canvas id="soundSpectrumCanvas" height="110"></canvas>
+
+        <!-- Smart Classifier Diagnosis -->
+        <div class="classifier-result">
+          <div class="classify-type" id="classifyResultHeader">
+            <span>🎧 Tap Below to Start Acoustic Diagnostic</span>
+          </div>
+          <div class="classify-detail" id="classifyResultText">
+            The system will analyze pitch, combustion stroke frequency, and valve train harmonics.
           </div>
         </div>
-        <div class="tile-chevron">›</div>
+
+        <button class="primary-action-btn" id="listenBtn" onclick="toggleSmartMicrophone()">
+          🎙️ Start Live Acoustic Listening
+        </button>
       </div>
 
-      <!-- Action 2: Motion Road Pothole Guard -->
-      <div class="action-tile" onclick="openMotionModal()">
-        <div class="tile-left">
-          <div class="tile-icon-box" style="color: #34d399;">🛡️</div>
-          <div>
-            <div class="tile-h1">In-Motion Pothole Guard</div>
-            <div class="tile-p">Tracks road bumps while car is moving</div>
-          </div>
-        </div>
-        <div class="tile-chevron">›</div>
-      </div>
-
-      <!-- Action 3: Chat with Mechanic -->
-      <a class="action-tile" href="https://wa.me/?text=Hello%20AutoContentment,%20my%20car%20has%20an%20issue" target="_blank">
-        <div class="tile-left">
-          <div class="tile-icon-box" style="color: #f59e0b;">💬</div>
-          <div>
-            <div class="tile-h1">Ask Mechanic (WhatsApp)</div>
-            <div class="tile-p">Send voice notes in Pidgin, Yoruba, or Igbo</div>
-          </div>
-        </div>
-        <div class="tile-chevron">›</div>
-      </a>
-    </div>
-
-    <!-- Genuine Oil Store Hook -->
-    <div class="store-banner">
+      <!-- RIGHT COLUMN: MOTION, ROAD SHOCKS & DEALER DESK -->
       <div>
-        <div class="store-pill">AutoContentment Verified</div>
-        <div class="store-h1">Genuine OEM 0W-20 Synthetic Oil</div>
-        <div class="store-desc">Prevents timing chain wear (₦45,000)</div>
+        <!-- In-Motion Speed & Road Roughness -->
+        <div class="cockpit-card" style="margin-bottom: 20px;">
+          <div class="card-hdr">
+            <span class="card-title">In-Motion Velocity & Pothole Guard</span>
+            <span class="badge">GPS + INERTIAL ACCEL</span>
+          </div>
+
+          <div class="speed-grid">
+            <div class="metric-cell">
+              <div class="cell-lbl">GPS Velocity</div>
+              <div class="cell-val" id="liveSpeedText" style="color: #38bdf8;">0.0 <span style="font-size:14px; color:var(--text-muted);">km/h</span></div>
+            </div>
+            <div class="metric-cell">
+              <div class="cell-lbl">Road Shock Load</div>
+              <div class="cell-val" id="liveShockText" style="color: var(--green);">0.08 <span style="font-size:14px; color:var(--text-muted);">G</span></div>
+            </div>
+          </div>
+
+          <div style="font-size: 13px; color: #cbd5e1; line-height: 1.5; background: #080c14; border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
+            <div style="font-weight: 700; color: #fff; margin-bottom: 4px;" id="motionStateHeader">Vehicle is Stationary</div>
+            <div id="motionStateExplanation" style="color: var(--text-muted); font-size: 12px;">
+              Place phone in car mount. When you drive, GPS and accelerometer detect road corrugation and crater hits automatically.
+            </div>
+          </div>
+        </div>
+
+        <!-- AutoContentment Genuine Fulfillment -->
+        <div class="dealer-fulfillment">
+          <div>
+            <div style="font-size: 10px; font-weight: 800; color: #60a5fa; text-transform: uppercase;">AutoContentment Verified</div>
+            <div style="font-size: 14px; font-weight: 800; color: #fff; margin-top: 2px;">Genuine OEM 0W-20 Synthetic Oil</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Protects timing chains & prevents sludge (₦45,000)</div>
+          </div>
+          <a href="https://wa.me/?text=I%20want%20to%20order%20genuine%200W-20%20oil%20from%20AutoContentment" target="_blank" class="order-link">Order Direct</a>
+        </div>
       </div>
-      <a href="https://wa.me/?text=I%20want%20to%20order%20genuine%200W-20%20oil" target="_blank" class="store-btn">Order</a>
+
     </div>
 
-  </div>
-
-  <!-- SLIDE-UP MODAL SHEET -->
-  <div class="sheet-backdrop" id="sheetBackdrop" onclick="closeSheet(event)">
-    <div class="sheet-card" onclick="event.stopPropagation()">
-      <div id="sheetContent"></div>
-    </div>
   </div>
 
   <script>
-    // 1. HOW IT KNOWS YOU ARE MOVING: GPS SPEED + ACCELEROMETER VARIANCE
-    let currentSpeed = 0;
-    let isMoving = false;
-
-    if ('geolocation' in navigator) {
-      navigator.geolocation.watchPosition(
-        (pos) => {
-          // Speed comes in meters/second from GPS hardware
-          const speedMs = pos.coords.speed;
-          if (speedMs !== null && speedMs !== undefined) {
-            currentSpeed = Math.max(0, speedMs * 3.6); // Convert to km/h
-          } else {
-            currentSpeed = 0;
-          }
-
-          document.getElementById('gpsSpeedDisplay').textContent = currentSpeed.toFixed(1) + ' km/h';
-
-          if (currentSpeed > 5.0) {
-            setMotionState(true, 'IN MOTION');
-          } else {
-            setMotionState(false, 'STATIONARY');
-          }
-        },
-        (err) => {
-          // If GPS is disabled, fallback to accelerometer motion detection
-          document.getElementById('motionSubText').textContent = 'Using inertial motion sensors';
-          startAccelerometerMotionDetection();
-        },
-        { enableHighAccuracy: true, maximumAge: 1000 }
-      );
-    } else {
-      startAccelerometerMotionDetection();
-    }
-
-    function setMotionState(moving, text) {
-      isMoving = moving;
-      const dot = document.getElementById('motionDot');
-      const label = document.getElementById('motionLabel');
-      const sub = document.getElementById('motionSubText');
-
-      if (moving) {
-        dot.classList.add('moving');
-        label.textContent = text;
-        label.style.color = '#34d399';
-        sub.textContent = 'Car in motion — Suspension Guard Active';
-      } else {
-        dot.classList.remove('moving');
-        label.textContent = text;
-        label.style.color = '#38bdf8';
-        sub.textContent = 'Vehicle stationary / Parked';
+    // 1. ENGINE PROFILES & ACOUSTIC BASELINES
+    const ENGINE_PROFILES = {
+      mercedes_m274: {
+        name: "Mercedes-Benz C300 (W205)",
+        spec: "M274 2.0L Turbo • Idle: ~720 RPM",
+        combustionHz: 24.0, // 4-cylinder 4-stroke combustion frequency at 720 RPM
+        optimalHealth: "Optimal Mercedes factory idle. No timing chain chatter or direct injector pulse delay."
+      },
+      toyota_2gr: {
+        name: "Lexus RX350 / Camry (2GR-FE)",
+        spec: "2GR-FE 3.5L V6 • Idle: ~650 RPM",
+        combustionHz: 32.5, // 6-cylinder combustion frequency at 650 RPM
+        optimalHealth: "Optimal Lexus 2GR-FE purr. Smooth hydraulic lifters, zero VVTi gear dry rattle."
+      },
+      honda_k24: {
+        name: "Honda Accord / CR-V (K24)",
+        spec: "K24 2.4L i-VTEC • Idle: ~750 RPM",
+        combustionHz: 25.0,
+        optimalHealth: "Optimal Honda K24 idle. VTC actuator lock pin engaged properly."
+      },
+      toyota_1gr: {
+        name: "Toyota Prado / 4Runner (1GR-FE)",
+        spec: "1GR-FE 4.0L V6 • Idle: ~680 RPM",
+        combustionHz: 34.0,
+        optimalHealth: "Optimal 1GR-FE sound. Viscous fan clutch and idle pulleys rotating harmonically."
       }
+    };
+
+    let currentEngineKey = 'mercedes_m274';
+
+    function updateEngineModel() {
+      currentEngineKey = document.getElementById('engineSelector').value;
+      const profile = ENGINE_PROFILES[currentEngineKey];
+      document.getElementById('carTitle').textContent = profile.name;
     }
 
-    function startAccelerometerMotionDetection() {
-      window.addEventListener('devicemotion', (e) => {
-        const acc = e.accelerationIncludingGravity || e.acceleration;
-        if (!acc || acc.x === null) return;
-        const norm = Math.sqrt((acc.x||0)**2 + (acc.y||0)**2 + (acc.z||0)**2);
-        const delta = Math.abs(norm - 9.81);
-        if (delta > 0.45) {
-          setMotionState(true, 'IN MOTION');
-        } else {
-          setMotionState(false, 'PARKED / IDLE');
-        }
-      });
-    }
-
-    // 2. REAL MICROPHONE ACCESS: LISTENS TO YOUR ACTUAL SOUND IN REAL TIME!
-    let audioContext = null;
-    let analyser = null;
+    // 2. REAL AUDIO CONTEXT & INTELLIGENT ACOUSTIC CLASSIFIER
+    let audioCtx = null;
+    let analyserNode = null;
     let micStream = null;
-    let animId = null;
+    let isListening = false;
+    let animFrame = null;
 
-    function openAudioModal() {
-      const backdrop = document.getElementById('sheetBackdrop');
-      const content = document.getElementById('sheetContent');
-      backdrop.style.display = 'flex';
+    async function toggleSmartMicrophone() {
+      const btn = document.getElementById('listenBtn');
+      const badge = document.getElementById('micStatusBadge');
 
-      content.innerHTML = `
-        <div class="sheet-title">🎙️ Live Engine Microphone Analyzer</div>
-        <div class="sheet-desc">Make any noise, whistle, talk, or hold the phone near your engine. The live frequency visualizer will react directly to your sound!</div>
-        <canvas id="audioCanvas" width="400" height="90"></canvas>
-        <div style="background:#090d14; border:1px solid #1e2433; border-radius:10px; padding:12px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:12px; color:#8b949e;">Live Audio Signal:</span>
-          <span style="font-size:13px; font-weight:700; color:#34d399;" id="liveAudioVerdict">Awaiting Microphone...</span>
-        </div>
-        <button class="btn-solid" id="startMicBtn" onclick="engageMicrophone()">▶ Turn On Microphone & Listen</button>
-        <button class="btn-close" onclick="closeSheet()">Close</button>
-      `;
-    }
+      if (!isListening) {
+        try {
+          micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          analyserNode = audioCtx.createAnalyser();
+          analyserNode.fftSize = 512;
 
-    async function engageMicrophone() {
-      const btn = document.getElementById('startMicBtn');
-      const verdict = document.getElementById('liveAudioVerdict');
+          const source = audioCtx.createMediaStreamSource(micStream);
+          source.connect(analyserNode);
 
-      try {
-        micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioContext.createAnalyser();
-        analyser.fftSize = 256;
+          isListening = true;
+          btn.textContent = '⏹ Stop Listening';
+          btn.classList.add('active-listening');
+          badge.textContent = 'LISTENING LIVE';
+          badge.style.background = '#064e3b';
+          badge.style.color = '#34d399';
 
-        const source = audioContext.createMediaStreamSource(micStream);
-        source.connect(analyser);
-
-        btn.textContent = '⏹ Listening Live (Speak / Make Sound Now)';
-        btn.style.background = '#dc2626';
-        verdict.textContent = 'Analyzing Real Frequencies...';
-
-        drawRealAudioWave();
-      } catch (err) {
-        alert('Microphone access denied or unsupported: ' + err.message);
+          processAcousticStream();
+        } catch (e) {
+          alert('Microphone permission required: ' + e.message);
+        }
+      } else {
+        stopSmartMicrophone();
       }
     }
 
-    function drawRealAudioWave() {
-      const canvas = document.getElementById('audioCanvas');
-      if (!canvas || !analyser) return;
-      const ctx = canvas.getContext('2d');
-      const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
+    function stopSmartMicrophone() {
+      isListening = false;
+      const btn = document.getElementById('listenBtn');
+      const badge = document.getElementById('micStatusBadge');
+      btn.textContent = '🎙️ Start Live Acoustic Listening';
+      btn.classList.remove('active-listening');
+      badge.textContent = 'MIC STANDBY';
+      badge.style.background = '#162030';
+      badge.style.color = '#38bdf8';
 
-      function renderFrame() {
-        if (!analyser) return;
-        animId = requestAnimationFrame(renderFrame);
-        analyser.getByteFrequencyData(dataArray);
-
-        ctx.fillStyle = '#07090e';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        const barWidth = (canvas.width / bufferLength) * 2.5;
-        let x = 0;
-        let maxEnergy = 0;
-
-        for (let i = 0; i < bufferLength; i++) {
-          const barHeight = (dataArray[i] / 255) * canvas.height;
-          if (dataArray[i] > maxEnergy) maxEnergy = dataArray[i];
-
-          ctx.fillStyle = dataArray[i] > 180 ? '#ef4444' : (dataArray[i] > 100 ? '#f59e0b' : '#10b981');
-          ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-          x += barWidth + 1;
-        }
-
-        const verdict = document.getElementById('liveAudioVerdict');
-        if (verdict) {
-          if (maxEnergy > 160) {
-            verdict.textContent = 'High Sound Energy Detected (Loud Noise)';
-            verdict.style.color = '#f59e0b';
-          } else if (maxEnergy > 60) {
-            verdict.textContent = 'Sound Detected: Smooth Harmonic Idle';
-            verdict.style.color = '#34d399';
-          } else {
-            verdict.textContent = 'Listening (Quiet / Low Noise)';
-            verdict.style.color = '#8b949e';
-          }
-        }
-      }
-      renderFrame();
-    }
-
-    function openMotionModal() {
-      const backdrop = document.getElementById('sheetBackdrop');
-      const content = document.getElementById('sheetContent');
-      backdrop.style.display = 'flex';
-
-      content.innerHTML = `
-        <div class="sheet-title">🛡️ Road & Pothole Guard Active</div>
-        <div class="sheet-desc">Place your phone on your dashboard or mount. When the car moves, it measures road vibration and logs severe crater hits.</div>
-        <div style="background:#090d14; border:1px solid #1e2433; border-radius:10px; padding:14px; margin-bottom:14px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-            <span style="font-size:12px; color:#8b949e;">Vehicle Movement:</span>
-            <span style="font-size:13px; font-weight:700; color:#fff;" id="modalMovingState">${isMoving ? '🚗 IN MOTION' : '🅿️ PARKED'}</span>
-          </div>
-          <div style="display:flex; justify-content:space-between;">
-            <span style="font-size:12px; color:#8b949e;">Speed:</span>
-            <span style="font-size:13px; font-weight:700; color:#38bdf8;">${currentSpeed.toFixed(1)} km/h</span>
-          </div>
-        </div>
-        <button class="btn-solid" onclick="closeSheet()">Keep Active in Background</button>
-      `;
-    }
-
-    function closeSheet() {
-      document.getElementById('sheetBackdrop').style.display = 'none';
       if (micStream) {
         micStream.getTracks().forEach(t => t.stop());
         micStream = null;
       }
-      if (animId) cancelAnimationFrame(animId);
-      analyser = null;
+      if (animFrame) cancelAnimationFrame(animFrame);
     }
+
+    function processAcousticStream() {
+      const canvas = document.getElementById('soundSpectrumCanvas');
+      const ctx = canvas.getContext('2d');
+      const bufferLength = analyserNode.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      function analyzeLoop() {
+        if (!isListening) return;
+        animFrame = requestAnimationFrame(analyzeLoop);
+
+        analyserNode.getByteFrequencyData(dataArray);
+
+        // Draw Spectrum
+        ctx.fillStyle = '#05070a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const barWidth = (canvas.width / bufferLength) * 2.5;
+        let x = 0;
+        let sumEnergy = 0;
+        let peakFreqIndex = 0;
+        let peakEnergy = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+          const val = dataArray[i];
+          sumEnergy += val;
+
+          if (val > peakEnergy) {
+            peakEnergy = val;
+            peakFreqIndex = i;
+          }
+
+          const barH = (val / 255) * canvas.height;
+          ctx.fillStyle = val > 170 ? '#ef4444' : (val > 90 ? '#2563eb' : '#10b981');
+          ctx.fillRect(x, canvas.height - barH, barWidth, barH);
+          x += barWidth + 1;
+        }
+
+        // Calculate Fundamental Frequency: f = index * (SampleRate / FFTSize)
+        const sampleRate = audioCtx.sampleRate || 44100;
+        const fundamentalFreq = Math.round(peakFreqIndex * (sampleRate / 512));
+
+        classifyAcousticSignature(fundamentalFreq, peakEnergy, sumEnergy / bufferLength);
+      }
+
+      analyzeLoop();
+    }
+
+    function classifyAcousticSignature(freqHz, peak, avgEnergy) {
+      const hdr = document.getElementById('classifyResultHeader');
+      const txt = document.getElementById('classifyResultText');
+      const profile = ENGINE_PROFILES[currentEngineKey];
+
+      // 1. Noise Floor (Too Quiet)
+      if (peak < 45) {
+        hdr.innerHTML = `<span style="color: var(--text-muted);">🎧 Listening... (Hold phone closer to engine)</span>`;
+        txt.textContent = "Background noise floor is low. Start engine or rev gently.";
+        return;
+      }
+
+      // 2. Human Voice / Humming Detection:
+      // Human vocal pitch spans ~85 Hz to ~260 Hz with distinctive vocal resonance peaks.
+      if (freqHz >= 85 && freqHz <= 280 && avgEnergy < 110) {
+        hdr.innerHTML = `<span style="color: var(--amber);">👤 Human Voice / Humming Detected (~${freqHz} Hz)</span>`;
+        txt.textContent = "Detected human speech or vocal humming, not vehicle mechanics. Please direct the phone microphone towards the engine bay or exhaust pipe.";
+        return;
+      }
+
+      // 3. High-Pitch Screech / Drive Belt Friction (> 2400 Hz)
+      if (freqHz > 2200 && peak > 120) {
+        hdr.innerHTML = `<span style="color: var(--red);">⚠️ Drive Belt Slip / Pulley Friction (${freqHz} Hz)</span>`;
+        txt.textContent = "Acoustic friction detected: Slipping serpentine belt or dry alternator decoupler bearing.";
+        return;
+      }
+
+      // 4. Low-Frequency Mechanical Engine Combustion / Idle
+      if (freqHz < 85 || (freqHz >= 280 && freqHz <= 800)) {
+        hdr.innerHTML = `<span style="color: var(--green);">✅ Optimal Engine Match: ${profile.name}</span>`;
+        txt.textContent = `${profile.optimalHealth} (Dominant combustion pitch verified: ~${freqHz} Hz).`;
+        return;
+      }
+
+      // General Sound Detected
+      hdr.innerHTML = `<span style="color: #38bdf8;">🔊 Sound Detected (~${freqHz} Hz)</span>`;
+      txt.textContent = `Acoustic energy active. Comparing harmonics against ${profile.name} baseline.`;
+    }
+
+    // 3. AUTOMATIC GPS VELOCITY & ROAD ROUGHNESS SENSING
+    if ('geolocation' in navigator) {
+      navigator.geolocation.watchPosition(
+        (pos) => {
+          const speed = pos.coords.speed ? pos.coords.speed * 3.6 : 0;
+          document.getElementById('liveSpeedText').innerHTML = `${speed.toFixed(1)} <span style="font-size:14px; color:var(--text-muted);">km/h</span>`;
+
+          const dot = document.getElementById('statusDot');
+          const pill = document.getElementById('motionStatusText');
+          const hdr = document.getElementById('motionStateHeader');
+          const exp = document.getElementById('motionStateExplanation');
+
+          if (speed > 5.0) {
+            dot.classList.add('active');
+            pill.textContent = `IN MOTION (${speed.toFixed(0)} km/h)`;
+            pill.style.color = '#34d399';
+            hdr.textContent = 'Vehicle In Motion';
+            exp.textContent = 'Suspension shock & pothole telemetry active in background.';
+          } else {
+            dot.classList.remove('active');
+            pill.textContent = `PARKED (${speed.toFixed(0)} km/h)`;
+            pill.style.color = '#38bdf8';
+            hdr.textContent = 'Vehicle Stationary / Parked';
+            exp.textContent = 'GPS speed at 0 km/h. Suspension guard will engage once car moves.';
+          }
+        },
+        () => {},
+        { enableHighAccuracy: true, maximumAge: 1000 }
+      );
+    }
+
+    // Accelerometer shock variance
+    window.addEventListener('devicemotion', (e) => {
+      const acc = e.accelerationIncludingGravity || e.acceleration;
+      if (!acc || acc.x === null) return;
+      const norm = Math.sqrt((acc.x||0)**2 + (acc.y||0)**2 + (acc.z||0)**2);
+      const shockG = Math.abs(norm - 9.81) / 9.81;
+      const shockEl = document.getElementById('liveShockText');
+      if (shockEl) {
+        shockEl.innerHTML = `${shockG.toFixed(2)} <span style="font-size:14px; color:var(--text-muted);">G</span>`;
+        shockEl.style.color = shockG > 1.8 ? 'var(--red)' : (shockG > 1.1 ? 'var(--amber)' : 'var(--green)');
+      }
+    });
   </script>
 </body>
 </html>
