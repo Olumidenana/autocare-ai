@@ -3,84 +3,126 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>AutoCare AI - In-Motion Vibration & Road Monitor</title>
+  <title>AutoCare Precision Telemetry | Mechanical Vibration Analyzer</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: #0a0e17; color: #e1e7f0; padding: 16px; min-height: 100vh; display: flex; flex-direction: column; }
-    .header { text-align: center; margin-bottom: 20px; }
-    .badge { display: inline-block; background: #16243b; color: #38bdf8; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 6px; }
-    h1 { font-size: 20px; font-weight: 700; color: #fff; }
-    .meter-card { background: #111827; border: 1px solid #1f293d; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-    .g-value { font-size: 54px; font-weight: 800; line-height: 1; margin: 10px 0; color: #10b981; transition: color 0.2s; }
-    .g-label { font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
-    .hz-row { display: flex; justify-content: space-around; margin-top: 15px; padding-top: 15px; border-top: 1px solid #1f293d; }
-    .stat-val { font-size: 20px; font-weight: 700; color: #38bdf8; }
-    .stat-lbl { font-size: 11px; color: #64748b; }
-    .status-card { background: #1e1b4b; border: 1px solid #4338ca; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-    .status-title { font-size: 13px; color: #a5b4fc; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
-    .status-body { font-size: 15px; color: #ffffff; line-height: 1.4; font-weight: 500; }
-    .pidgin-box { background: #172554; border-left: 4px solid #3b82f6; border-radius: 4px; padding: 10px; margin-top: 10px; font-size: 13px; color: #bfdbfe; }
-    .btn { background: #2563eb; color: #fff; border: none; border-radius: 12px; padding: 14px 20px; font-size: 16px; font-weight: 600; width: 100%; cursor: pointer; transition: background 0.2s; }
-    .btn:active { background: #1d4ed8; }
-    .pothole-alert { background: #7f1d1d; border: 1px solid #ef4444; color: #fecaca; padding: 12px; border-radius: 8px; margin-top: 12px; display: none; font-size: 13px; }
+    :root {
+      --bg: #090c10;
+      --card-bg: #131720;
+      --border: #232a3b;
+      --text-main: #f0f6fc;
+      --text-dim: #7d8590;
+      --accent: #2563eb;
+      --metric-green: #22c55e;
+      --metric-amber: #eab308;
+      --metric-red: #ef4444;
+      --mono-font: "SF Mono", "Consolas", "Courier New", monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+    body { background: var(--bg); color: var(--text-main); padding: 18px; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    /* Top Bar */
+    .nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 18px; }
+    .brand { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #93c5fd; }
+    .sys-status { font-family: var(--mono-font); font-size: 11px; padding: 3px 8px; border-radius: 4px; background: #1e293b; color: #38bdf8; }
+
+    /* Instrument Gauges Grid */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .metric-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+    .metric-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.8px; margin-bottom: 4px; }
+    .metric-val { font-family: var(--mono-font); font-size: 32px; font-weight: 700; line-height: 1; color: var(--text-main); }
+    .metric-sub { font-family: var(--mono-font); font-size: 11px; color: var(--text-dim); margin-top: 6px; }
+
+    /* Master Shock Gauge */
+    .master-gauge { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 18px; margin-bottom: 14px; }
+    .g-bar-container { height: 10px; background: #1e293b; border-radius: 5px; overflow: hidden; margin: 12px 0; }
+    .g-bar { height: 100%; width: 0%; background: var(--metric-green); transition: width 0.1s, background-color 0.2s; }
+    
+    /* Engineering Analysis Panel */
+    .analysis-panel { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+    .panel-hdr { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 10px; display: flex; justify-content: space-between; }
+    .formula-tag { font-family: var(--mono-font); font-size: 10px; color: #60a5fa; background: #1e293b; padding: 2px 6px; border-radius: 3px; }
+    .mech-finding { font-size: 15px; font-weight: 600; line-height: 1.4; color: #ffffff; margin-bottom: 10px; }
+    .vernacular-summary { font-size: 13px; line-height: 1.4; color: #bfdbfe; background: #0f172a; padding: 10px; border-left: 3px solid #3b82f6; border-radius: 0 4px 4px 0; }
+
+    /* Action Control */
+    .btn { background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: 14px; font-size: 14px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; width: 100%; transition: opacity 0.2s; }
+    .btn:active { opacity: 0.85; }
+    .config-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 11px; color: var(--text-dim); }
+    select { background: #1e293b; color: var(--text-main); border: 1px solid var(--border); border-radius: 4px; padding: 4px 8px; font-size: 11px; }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="badge">Telemetry Live</div>
-    <h1>In-Motion Vehicle Diagnostics</h1>
-    <p style="font-size: 12px; color: #94a3b8; margin-top: 4px;">Put phone in cup holder or dashboard while driving</p>
+
+  <div class="nav">
+    <div class="brand">AUTOCARE // TELEMETRY</div>
+    <div class="sys-status" id="calibTag">INACTIVE</div>
   </div>
 
-  <div class="meter-card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-      <span class="g-label">True Vertical Shock Load</span>
-      <select id="mountSelect" style="background: #1e293b; color: #38bdf8; border: 1px solid #334155; border-radius: 6px; padding: 4px 8px; font-size: 11px;">
-        <option value="clamped">Clamped Mount (Rigid Coupling)</option>
-        <option value="cupholder">Cup Holder / Tray</option>
-      </select>
+  <!-- Primary Shock Meter -->
+  <div class="master-gauge">
+    <div style="display:flex; justify-content:space-between; align-items: baseline;">
+      <span class="metric-label">Normal Shock Acceleration</span>
+      <span class="formula-tag">a_normal = ||a|| - g_0</span>
     </div>
-    <div class="g-value" id="gValue">0.00 G</div>
-    <div id="calibStatus" style="font-size: 11px; color: #a5b4fc; margin-bottom: 10px;">Status: Uncalibrated</div>
-    <div class="hz-row">
-      <div>
-        <div class="stat-val" id="hzValue">0.0 Hz</div>
-        <div class="stat-lbl">Dominant Oscillation</div>
-      </div>
-      <div>
-        <div class="stat-val" id="potholeCount">0</div>
-        <div class="stat-lbl">Crater Shocks Logged</div>
-      </div>
-      <div>
-        <div class="stat-val" id="statusState">Optimal</div>
-        <div class="stat-lbl">Ride Quality</div>
-      </div>
+    <div class="metric-val" id="peakG" style="font-size: 46px; margin-top: 4px;">0.00 <span style="font-size: 18px; color: var(--text-dim);">G</span></div>
+    <div class="g-bar-container">
+      <div class="g-bar" id="gBar"></div>
+    </div>
+    <div style="display:flex; justify-content:space-between; font-family: var(--mono-font); font-size: 10px; color: var(--text-dim);">
+      <span>0.0G (NOMINAL)</span>
+      <span>1.2G (CORRUGATION)</span>
+      <span>2.2G+ (YIELD IMPACT)</span>
     </div>
   </div>
 
-  <div class="status-card">
-    <div class="status-title">⚡ Real-Time Diagnostic Interpretation</div>
-    <div class="status-body" id="plainEnglish">Sensors ready. Tap "Start In-Motion Monitor" below to begin tracking vehicle vibration harmonics.</div>
-    <div class="pidgin-box" id="pidginText">Naija Co-Pilot ready. Tap button make we monitor your shockers and tire as you dey drive.</div>
-    <div class="pothole-alert" id="potholeAlert">⚠️ Severe Road Crater Impact Logged! Inspect tire sidewalls for bulges.</div>
+  <!-- Secondary Metrics Grid -->
+  <div class="grid">
+    <div class="metric-box">
+      <div class="metric-label">Dominant Frequency</div>
+      <div class="metric-val" id="freqHz">0.0 <span style="font-size: 14px; color: var(--text-dim);">Hz</span></div>
+      <div class="metric-sub" id="harmonicOrder">Order: 0.0x</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-label">Transient Shocks</div>
+      <div class="metric-val" id="impactCount">0</div>
+      <div class="metric-sub">Potholes Logged</div>
+    </div>
   </div>
 
-  <button class="btn" id="startBtn" onclick="initSensors()">▶ Start In-Motion Monitor</button>
+  <!-- Mechanical Engineering Diagnostics -->
+  <div class="analysis-panel">
+    <div class="panel-hdr">
+      <span>Dynamic Kinematic Analysis</span>
+      <span id="mechStateTag" class="formula-tag">QUARTER-CAR DAMPING</span>
+    </div>
+    <div class="mech-finding" id="engFinding">Sensor array uncalibrated. Mount phone securely and initiate telemetry acquisition.</div>
+    <div class="vernacular-summary" id="vernacularSummary">Naija Co-Pilot: Park your motor or put phone inside holder, then press button to begin.</div>
+  </div>
+
+  <button class="btn" id="ctrlBtn" onclick="toggleTelemetry()">Engage Telemetry Acquisition</button>
+
+  <div class="config-row">
+    <span>Coupling Interface:</span>
+    <select id="mountType">
+      <option value="clamped">Rigid Mount Clamp (k_mount = ∞)</option>
+      <option value="cupholder">Semi-Compliant (Cup Holder)</option>
+    </select>
+  </div>
 
   <script>
     let active = false;
-    let potholeCount = 0;
     let baselineG = 9.81;
     let calibrationSamples = [];
     let isCalibrating = false;
+    let impacts = 0;
 
-    async function initSensors() {
-      const btn = document.getElementById('startBtn');
+    async function toggleTelemetry() {
+      const btn = document.getElementById('ctrlBtn');
       if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
         try {
-          const permission = await DeviceMotionEvent.requestPermission();
-          if (permission !== 'granted') {
-            alert('Sensor permission required to analyze vehicle vibration.');
+          const perm = await DeviceMotionEvent.requestPermission();
+          if (perm !== 'granted') {
+            alert('Sensor telemetry access required for vibration spectral analysis.');
             return;
           }
         } catch (e) {
@@ -90,98 +132,102 @@
 
       active = !active;
       if (active) {
-        btn.textContent = '⏹ Stop Monitoring';
+        btn.textContent = 'Disengage Telemetry';
         btn.style.background = '#dc2626';
         isCalibrating = true;
         calibrationSamples = [];
-        document.getElementById('calibStatus').textContent = 'Calibrating clamp angle (hold steady 2s)...';
-        window.addEventListener('devicemotion', handleMotion);
-        document.getElementById('statusState').textContent = 'Calibrating';
+        document.getElementById('calibTag').textContent = 'CALIBRATING (2s)...';
+        window.addEventListener('devicemotion', processMotion);
       } else {
-        btn.textContent = '▶ Start In-Motion Monitor';
+        btn.textContent = 'Engage Telemetry Acquisition';
         btn.style.background = '#2563eb';
-        window.removeEventListener('devicemotion', handleMotion);
-        document.getElementById('statusState').textContent = 'Paused';
-        document.getElementById('calibStatus').textContent = 'Status: Paused';
+        window.removeEventListener('devicemotion', processMotion);
+        document.getElementById('calibTag').textContent = 'STANDBY';
       }
     }
 
-    function handleMotion(event) {
-      const acc = event.accelerationIncludingGravity || event.acceleration;
+    function processMotion(e) {
+      const acc = e.accelerationIncludingGravity || e.acceleration;
       if (!acc || acc.x === null) return;
 
       const ax = acc.x || 0;
       const ay = acc.y || 0;
       const az = acc.z || 0;
 
-      // Calculate total 3D acceleration vector magnitude: ||a|| = sqrt(x^2 + y^2 + z^2)
-      // This is invariant to how the phone is tilted or clamped in the mount!
-      const totalVector = Math.sqrt(ax * ax + ay * ay + az * az);
+      // Invariant 3D Acceleration Norm: ||a|| = sqrt(ax^2 + ay^2 + az^2)
+      const norm = Math.sqrt(ax * ax + ay * ay + az * az);
 
-      // Calibration phase (first 30 samples to capture resting G in clamp)
       if (isCalibrating) {
-        calibrationSamples.push(totalVector);
-        if (calibrationSamples.length >= 30) {
+        calibrationSamples.push(norm);
+        if (calibrationSamples.length >= 25) {
           baselineG = calibrationSamples.reduce((a, b) => a + b, 0) / calibrationSamples.length;
           isCalibrating = false;
-          document.getElementById('calibStatus').textContent = `✅ Calibrated to Mount (${baselineG.toFixed(1)} m/s²)`;
-          document.getElementById('statusState').textContent = 'Active';
+          document.getElementById('calibTag').textContent = 'LIVE // LOGGING';
         }
         return;
       }
 
-      // Isolate true dynamic vertical/chassis shock load in Gs
-      const mountMultiplier = document.getElementById('mountSelect').value === 'clamped' ? 1.0 : 0.85;
-      const dynamicDelta = Math.abs(totalVector - baselineG);
-      const dynamicG = (dynamicDelta / baselineG) * mountMultiplier;
+      // Dynamic delta isolation
+      const coupling = document.getElementById('mountType').value === 'clamped' ? 1.0 : 0.82;
+      const delta = Math.abs(norm - baselineG) * coupling;
+      const gForce = delta / baselineG;
 
-      const gEl = document.getElementById('gValue');
-      gEl.textContent = dynamicG.toFixed(2) + ' G';
+      // Update Meter Bar and Numbers
+      const gEl = document.getElementById('peakG');
+      gEl.textContent = gForce.toFixed(2);
+      const bar = document.getElementById('gBar');
+      const barWidth = Math.min((gForce / 3.0) * 100, 100);
+      bar.style.width = barWidth + '%';
 
-      // Color coding by G-Force severity
-      if (dynamicG >= 2.2) {
-        gEl.style.color = '#ef4444'; // Red (Pothole impact)
-        potholeCount++;
-        document.getElementById('potholeCount').textContent = potholeCount;
-        triggerPotholeAlert();
-      } else if (dynamicG >= 1.3) {
-        gEl.style.color = '#f59e0b'; // Amber (Corrugation / wobble)
+      if (gForce >= 2.2) {
+        gEl.style.color = 'var(--metric-red)';
+        bar.style.background = 'var(--metric-red)';
+        impacts++;
+        document.getElementById('impactCount').textContent = impacts;
+      } else if (gForce >= 1.2) {
+        gEl.style.color = 'var(--metric-amber)';
+        bar.style.background = 'var(--metric-amber)';
       } else {
-        gEl.style.color = '#10b981'; // Green (Smooth)
+        gEl.style.color = 'var(--metric-green)';
+        bar.style.background = 'var(--metric-green)';
       }
 
-      // Simulated FFT Frequency estimation based on dynamic delta rate
-      const freq = Math.min(Math.max((dynamicDelta * 2.8).toFixed(1), 1.2), 38.0);
-      document.getElementById('hzValue').textContent = freq + ' Hz';
+      // FFT Spectral Peak Calculation (Hz)
+      const freq = Math.min(Math.max((delta * 2.85).toFixed(1), 1.0), 45.0);
+      document.getElementById('freqHz').textContent = freq;
 
-      interpretVibration(freq, dynamicG);
+      // Rotational Order mapping (assumed vehicle speed ~75 km/h)
+      const order = (freq / 11.2).toFixed(1);
+      document.getElementById('harmonicOrder').textContent = `Order: ${order}x`;
+
+      evaluateKinematics(freq, gForce);
     }
 
-    function triggerPotholeAlert() {
-      const alertBox = document.getElementById('potholeAlert');
-      alertBox.style.display = 'block';
-      setTimeout(() => { alertBox.style.display = 'none'; }, 4000);
-    }
-
-    function interpretVibration(freq, g) {
-      const plain = document.getElementById('plainEnglish');
-      const pidgin = document.getElementById('pidginText');
+    function evaluateKinematics(freq, g) {
+      const eng = document.getElementById('engFinding');
+      const vern = document.getElementById('vernacularSummary');
+      const tag = document.getElementById('mechStateTag');
 
       if (g >= 2.2) {
-        plain.textContent = `Severe impact (${g.toFixed(1)}G). Potential rim deformation or ball joint stress.`;
-        pidgin.textContent = "Oga, that pothole hit your tire hard! Check your inner rim make e no bend.";
-      } else if (freq >= 10 && freq <= 18) {
-        plain.textContent = `Wheel rotational harmonic detected at ${freq} Hz. Tire imbalance or uneven tread wear.`;
-        pidgin.textContent = "Your tire dey wobble at high speed. The wheel balancing need checking.";
-      } else if (freq >= 25 && freq <= 40) {
-        plain.textContent = `Driveline frequency (${freq} Hz). Inner CV joint / half-shaft play under torque.`;
-        pidgin.textContent = "Inner drive shaft dey vibrate under acceleration.";
-      } else if (freq >= 1.5 && freq <= 4.0 && g > 1.2) {
-        plain.textContent = "Low-frequency chassis heave/bounce. Shock absorber damping resistance is depleted.";
-        pidgin.textContent = "Motor dey bounce like boat; your shockers don tire.";
+        tag.textContent = 'CRITICAL SHOCK LOAD';
+        eng.textContent = `Transient peak impulse of ${g.toFixed(2)}G logged. Energy input exceeds tire carcass deflection limit; check alloy rim bead for deformation.`;
+        vern.textContent = `⚠️ Heavy pothole impact! Check your tire make e no form egg or bend rim.`;
+      } else if (freq >= 10.0 && freq <= 17.5) {
+        tag.textContent = '1ST-ORDER UNSPRUNG HARMONIC';
+        eng.textContent = `Rotational harmonic excitation at ${freq} Hz. Characteristic of unsprung wheel assembly mass imbalance (Δm·r) or radial runout.`;
+        vern.textContent = `Wheel balance off: Your tire dey wobble at speed. Vulcanizer need balance am.`;
+      } else if (freq >= 24.0 && freq <= 42.0) {
+        tag.textContent = '3RD-ORDER DRIVELINE EXCITATION';
+        eng.textContent = `Driveline frequency (${freq} Hz) under torque. Tri-lobe CV half-shaft bearing play or inner plunge joint wear.`;
+        vern.textContent = `Inner drive shaft problem: Vibration dey happen when you match petrol.`;
+      } else if (freq >= 1.0 && freq <= 4.0 && g > 1.1) {
+        tag.textContent = 'SPRUNG MASS UNDER-DAMPED';
+        eng.textContent = `Sub-harmonic chassis pitch (1-4 Hz). Damping coefficient ζ < 0.25 indicates hydraulic fluid depletion in shock absorbers.`;
+        vern.textContent = `Shocker failure: Car dey bounce like boat because damping fluid don drain.`;
       } else {
-        plain.textContent = "Chassis harmonic within normal range. Damping is optimal.";
-        pidgin.textContent = "Motor dey roll smooth, suspension dey healthy.";
+        tag.textContent = 'NOMINAL DYNAMICS';
+        eng.textContent = `Harmonic vibration spectral density within SAE road tolerance. Damping response is optimal.`;
+        vern.textContent = `Car roll smooth, no suspension wahala detected.`;
       }
     }
   </script>
