@@ -33,8 +33,15 @@
   </div>
 
   <div class="meter-card">
-    <div class="g-label">Vertical Shock Load</div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <span class="g-label">True Vertical Shock Load</span>
+      <select id="mountSelect" style="background: #1e293b; color: #38bdf8; border: 1px solid #334155; border-radius: 6px; padding: 4px 8px; font-size: 11px;">
+        <option value="clamped">Clamped Mount (Rigid Coupling)</option>
+        <option value="cupholder">Cup Holder / Tray</option>
+      </select>
+    </div>
     <div class="g-value" id="gValue">0.00 G</div>
+    <div id="calibStatus" style="font-size: 11px; color: #a5b4fc; margin-bottom: 10px;">Status: Uncalibrated</div>
     <div class="hz-row">
       <div>
         <div class="stat-val" id="hzValue">0.0 Hz</div>
@@ -63,7 +70,9 @@
   <script>
     let active = false;
     let potholeCount = 0;
-    let lastZ = 9.81;
+    let baselineG = 9.81;
+    let calibrationSamples = [];
+    let isCalibrating = false;
 
     async function initSensors() {
       const btn = document.getElementById('startBtn');
@@ -83,43 +92,69 @@
       if (active) {
         btn.textContent = '⏹ Stop Monitoring';
         btn.style.background = '#dc2626';
+        isCalibrating = true;
+        calibrationSamples = [];
+        document.getElementById('calibStatus').textContent = 'Calibrating clamp angle (hold steady 2s)...';
         window.addEventListener('devicemotion', handleMotion);
-        document.getElementById('statusState').textContent = 'Monitoring';
+        document.getElementById('statusState').textContent = 'Calibrating';
       } else {
         btn.textContent = '▶ Start In-Motion Monitor';
         btn.style.background = '#2563eb';
         window.removeEventListener('devicemotion', handleMotion);
         document.getElementById('statusState').textContent = 'Paused';
+        document.getElementById('calibStatus').textContent = 'Status: Paused';
       }
     }
 
     function handleMotion(event) {
       const acc = event.accelerationIncludingGravity || event.acceleration;
-      if (!acc || acc.z === null) return;
+      if (!acc || acc.x === null) return;
 
-      const zG = Math.abs(acc.z) / 9.81;
+      const ax = acc.x || 0;
+      const ay = acc.y || 0;
+      const az = acc.z || 0;
+
+      // Calculate total 3D acceleration vector magnitude: ||a|| = sqrt(x^2 + y^2 + z^2)
+      // This is invariant to how the phone is tilted or clamped in the mount!
+      const totalVector = Math.sqrt(ax * ax + ay * ay + az * az);
+
+      // Calibration phase (first 30 samples to capture resting G in clamp)
+      if (isCalibrating) {
+        calibrationSamples.push(totalVector);
+        if (calibrationSamples.length >= 30) {
+          baselineG = calibrationSamples.reduce((a, b) => a + b, 0) / calibrationSamples.length;
+          isCalibrating = false;
+          document.getElementById('calibStatus').textContent = `✅ Calibrated to Mount (${baselineG.toFixed(1)} m/s²)`;
+          document.getElementById('statusState').textContent = 'Active';
+        }
+        return;
+      }
+
+      // Isolate true dynamic vertical/chassis shock load in Gs
+      const mountMultiplier = document.getElementById('mountSelect').value === 'clamped' ? 1.0 : 0.85;
+      const dynamicDelta = Math.abs(totalVector - baselineG);
+      const dynamicG = (dynamicDelta / baselineG) * mountMultiplier;
+
       const gEl = document.getElementById('gValue');
-      gEl.textContent = zG.toFixed(2) + ' G';
+      gEl.textContent = dynamicG.toFixed(2) + ' G';
 
       // Color coding by G-Force severity
-      if (zG >= 2.2) {
+      if (dynamicG >= 2.2) {
         gEl.style.color = '#ef4444'; // Red (Pothole impact)
         potholeCount++;
         document.getElementById('potholeCount').textContent = potholeCount;
         triggerPotholeAlert();
-      } else if (zG >= 1.4) {
+      } else if (dynamicG >= 1.3) {
         gEl.style.color = '#f59e0b'; // Amber (Corrugation / wobble)
       } else {
         gEl.style.color = '#10b981'; // Green (Smooth)
       }
 
-      // Simulated FFT Frequency estimation based on delta
-      const delta = Math.abs(acc.z - lastZ);
-      lastZ = acc.z;
-      const freq = Math.min(Math.max((delta * 2.8).toFixed(1), 1.2), 38.0);
+      // Simulated FFT Frequency estimation based on dynamic delta rate
+      const freq = Math.min(Math.max((dynamicDelta * 2.8).toFixed(1), 1.2), 38.0);
       document.getElementById('hzValue').textContent = freq + ' Hz';
 
-      interpretVibration(freq, zG);
+      interpretVibration(freq, dynamicG);
     }
 
     function triggerPotholeAlert() {
@@ -141,7 +176,7 @@
       } else if (freq >= 25 && freq <= 40) {
         plain.textContent = `Driveline frequency (${freq} Hz). Inner CV joint / half-shaft play under torque.`;
         pidgin.textContent = "Inner drive shaft dey vibrate under acceleration.";
-      } else if (freq >= 1.5 && freq <= 4.0 && g > 1.3) {
+      } else if (freq >= 1.5 && freq <= 4.0 && g > 1.2) {
         plain.textContent = "Low-frequency chassis heave/bounce. Shock absorber damping resistance is depleted.";
         pidgin.textContent = "Motor dey bounce like boat; your shockers don tire.";
       } else {

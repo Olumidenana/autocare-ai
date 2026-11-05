@@ -25,14 +25,21 @@ class VibrationTelemetryEngine:
         dominant_freq_hz: float,
         peak_g_force: float,
         speed_kmh: float,
+        mount_type: str = "clamped_mount",  # clamped_mount, cup_holder, loose
         gps_lat: Optional[float] = None,
         gps_lng: Optional[float] = None,
         road_name: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Processes real-time accelerometer readings from the driver's phone.
+        Accounts for rigid mechanical coupling when phone is held tightly in a mount.
         """
-        # 1. Engineering Classification
+        # Mount Coupling Factor:
+        # A clamped mount transfers high-frequency engine harmonics directly (coupling factor ~1.0).
+        # A phone in a cup holder has slight damping (~0.85).
+        coupling_multiplier = 1.0 if mount_type == "clamped_mount" else 0.85
+        effective_g_force = peak_g_force * coupling_multiplier
+
         engineering_cause = ""
         plain_english = ""
         pidgin_advice = ""
@@ -40,12 +47,15 @@ class VibrationTelemetryEngine:
         pothole_detected = False
 
         # Check for Severe Impact / Pothole (> 2.2G vertical shock)
-        if peak_g_force >= 2.2:
+        if effective_g_force >= 2.2:
             pothole_detected = True
             severity = "CRITICAL"
-            engineering_cause = f"High-energy transient vertical shock ({peak_g_force:.2f}G) exceeding wheel rim yield stress."
+            engineering_cause = (
+                f"High-energy transient vertical shock ({effective_g_force:.2f}G) rigidly coupled "
+                f"via {mount_type}. Impact energy exceeds tire carcass deflection limit."
+            )
             plain_english = (
-                f"Severe pothole/crater impact recorded ({peak_g_force:.1f}G shock). "
+                f"Severe pothole/crater impact recorded ({effective_g_force:.1f}G shock). "
                 "Inspect your tire for sidewall bulges and check the inner rim lip for bending."
             )
             pidgin_advice = "Oga, that pothole impact hard well-well! Check your tire make e no form egg or bend rim."
