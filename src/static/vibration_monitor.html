@@ -2,262 +2,390 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#000000">
+  <link rel="manifest" href="/static/manifest.json">
   <title>AutoContentment | Smart Vehicle Companion</title>
   
   <style>
     :root {
       --bg: #000000;
-      --surface: #0f1115;
-      --surface-elevated: #161a22;
-      --border: #232733;
+      --surface: #101319;
+      --surface-border: #1e2433;
       --text: #ffffff;
-      --text-muted: #8b949e;
+      --text-dim: #8b949e;
       --accent: #2563eb;
       --green: #10b981;
       --amber: #f59e0b;
       --red: #ef4444;
+      --font-mono: "SF Mono", "Consolas", monospace;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding-bottom: 80px; min-height: 100vh; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; min-height: 100vh; padding-bottom: 90px; }
 
-    /* Luxury Header */
-    .header { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
-    .brand-group { display: flex; flex-direction: column; }
-    .brand-name { font-size: 15px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
-    .brand-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.5px; }
-    .status-pill { background: #064e3b; color: #34d399; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 999px; display: flex; align-items: center; gap: 6px; }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #34d399; }
+    /* Sticky Mobile Top App Bar */
+    .app-bar { background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--surface-border); padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .brand-title { font-size: 15px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; }
+    .motion-indicator { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; background: #131a26; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--surface-border); color: #38bdf8; font-family: var(--font-mono); }
+    .motion-dot { width: 7px; height: 7px; border-radius: 50%; background: #38bdf8; transition: background 0.3s; }
+    .motion-dot.moving { background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
-    .container { max-width: 480px; margin: 0 auto; padding: 20px 16px; }
+    .main-wrap { max-width: 440px; margin: 0 auto; padding: 16px; }
 
-    /* Vehicle Banner */
-    .car-card { background: linear-gradient(145deg, #161a22 0%, #0d1017 100%); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 20px; position: relative; overflow: hidden; }
-    .car-card::before { content: ""; position: absolute; top: -50px; right: -50px; width: 120px; height: 120px; background: radial-gradient(circle, rgba(37,99,235,0.2) 0%, transparent 70%); }
-    .car-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 2px; }
-    .car-vin { font-size: 12px; color: var(--text-muted); font-family: monospace; }
-    .car-meta-row { display: flex; gap: 16px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
-    .car-meta-item { display: flex; flex-direction: column; }
-    .meta-lbl { font-size: 10px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
-    .meta-val { font-size: 13px; font-weight: 700; color: #fff; margin-top: 2px; }
+    /* Car Identity Card */
+    .vehicle-card { background: linear-gradient(135deg, #131722 0%, #0c0e14 100%); border: 1px solid var(--surface-border); border-radius: 18px; padding: 18px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+    .veh-name { font-size: 17px; font-weight: 800; color: #fff; }
+    .veh-tag { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+    .veh-stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); text-align: center; }
+    .veh-stat-lbl { font-size: 9px; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.5px; }
+    .veh-stat-val { font-size: 13px; font-weight: 700; color: #fff; margin-top: 2px; }
 
-    /* Central Health Dial */
-    .health-hero { text-align: center; padding: 24px 0; margin-bottom: 20px; }
-    .dial-circle { width: 170px; height: 170px; border-radius: 50%; border: 4px solid #1e2433; border-top: 4px solid var(--green); margin: 0 auto 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-    .dial-circle::after { content: ""; position: absolute; inset: -10px; border-radius: 50%; background: radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%); z-index: -1; }
-    .score-num { font-size: 48px; font-weight: 900; line-height: 1; color: #fff; }
-    .score-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--green); font-weight: 700; margin-top: 4px; }
-    .hero-summary { font-size: 14px; color: #cbd5e1; max-width: 320px; margin: 0 auto; line-height: 1.4; }
+    /* Central Health Score Dial */
+    .health-hero { text-align: center; padding: 18px 0; }
+    .dial-wrap { width: 150px; height: 150px; border-radius: 50%; border: 3px solid #1a2233; border-top: 3px solid var(--green); margin: 0 auto 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+    .dial-wrap::after { content: ""; position: absolute; inset: -8px; border-radius: 50%; background: radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%); }
+    .dial-score { font-size: 44px; font-weight: 900; line-height: 1; color: #fff; }
+    .dial-status { font-size: 11px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+    .dial-caption { font-size: 13px; color: #cbd5e1; line-height: 1.4; padding: 0 10px; }
 
-    /* 3 Simple Action Cards */
-    .action-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
-    .action-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.2s; text-decoration: none; color: inherit; }
-    .action-tile:active { transform: scale(0.98); background: var(--surface-elevated); }
+    /* Live GPS & Motion Banner */
+    .motion-banner { background: #0c121d; border: 1px solid var(--surface-border); border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .banner-lbl { font-size: 11px; color: var(--text-dim); text-transform: uppercase; }
+    .banner-speed { font-size: 18px; font-weight: 800; font-family: var(--font-mono); color: #fff; }
+
+    /* Action Tiles */
+    .action-stack { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+    .action-tile { background: var(--surface); border: 1px solid var(--surface-border); border-radius: 14px; padding: 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; text-decoration: none; color: inherit; transition: all 0.15s; }
+    .action-tile:active { transform: scale(0.98); background: #181d29; }
     .tile-left { display: flex; align-items: center; gap: 14px; }
-    .tile-icon { width: 44px; height: 44px; border-radius: 12px; background: #1e2433; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-    .tile-title { font-size: 14px; font-weight: 700; color: #fff; }
-    .tile-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-    .tile-arrow { color: var(--text-muted); font-size: 18px; font-weight: 700; }
+    .tile-icon-box { width: 42px; height: 42px; border-radius: 10px; background: #161b26; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .tile-h1 { font-size: 14px; font-weight: 700; color: #fff; }
+    .tile-p { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+    .tile-chevron { font-size: 16px; color: var(--text-dim); font-weight: 700; }
 
-    /* Modal / Popup for actions */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; align-items: flex-end; z-index: 1000; }
-    .modal-sheet { background: #11141c; border-top: 1px solid var(--border); border-radius: 24px 24px 0 0; padding: 24px; width: 100%; max-width: 500px; margin: 0 auto; animation: slideUp 0.3s ease-out; }
+    /* Dealer Store Banner */
+    .store-banner { background: linear-gradient(135deg, #0f172a 0%, #09101f 100%); border: 1px solid #1e3a8a; border-radius: 14px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+    .store-pill { font-size: 9px; font-weight: 700; text-transform: uppercase; background: #1e3a8a; color: #60a5fa; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-bottom: 4px; }
+    .store-h1 { font-size: 13px; font-weight: 700; color: #fff; }
+    .store-desc { font-size: 11px; color: #94a3b8; }
+    .store-btn { background: #2563eb; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+
+    /* Bottom Slide-Up Sheet Modal */
+    .sheet-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: none; align-items: flex-end; z-index: 1000; }
+    .sheet-card { background: #11151f; border-top: 1px solid var(--surface-border); border-radius: 20px 20px 0 0; padding: 20px 18px 30px; width: 100%; max-width: 480px; margin: 0 auto; animation: slideUp 0.25s ease-out; }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
-    .modal-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.4; }
+    .sheet-title { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
+    .sheet-desc { font-size: 12px; color: var(--text-dim); line-height: 1.4; margin-bottom: 16px; }
 
-    .primary-btn { background: #2563eb; color: #fff; border: none; border-radius: 12px; padding: 15px; font-size: 14px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; display: block; text-decoration: none; }
-    .cancel-btn { background: #1e2433; color: var(--text-muted); border: none; border-radius: 12px; padding: 12px; font-size: 13px; font-weight: 600; width: 100%; cursor: pointer; margin-top: 8px; text-align: center; }
+    /* Real Audio Visualizer Canvas */
+    #audioCanvas { width: 100%; height: 90px; background: #07090e; border: 1px solid var(--surface-border); border-radius: 10px; margin-bottom: 14px; }
 
-    /* Dealer Store CTA */
-    .store-card { background: #0c1424; border: 1px solid #1e3a8a; border-radius: 14px; padding: 16px; display: flex; align-items: center; justify-content: space-between; }
-    .store-badge { font-size: 10px; background: #1e3a8a; color: #60a5fa; padding: 2px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase; display: inline-block; margin-bottom: 4px; }
-    .store-title { font-size: 13px; font-weight: 700; color: #fff; }
-    .store-sub { font-size: 11px; color: #94a3b8; }
-    .buy-link { background: #2563eb; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
-
-    /* Engineering toggle */
-    .tech-toggle { text-align: center; margin-top: 24px; font-size: 11px; color: var(--text-muted); }
-    .tech-toggle a { color: #60a5fa; text-decoration: none; }
+    .btn-solid { background: #2563eb; color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 14px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; }
+    .btn-close { background: #181d29; color: var(--text-dim); border: none; border-radius: 12px; padding: 12px; font-size: 13px; font-weight: 600; width: 100%; cursor: pointer; margin-top: 8px; text-align: center; }
   </style>
 </head>
 <body>
 
-  <!-- Clean Luxury Header -->
-  <header class="header">
-    <div class="brand-group">
-      <div class="brand-name">AutoContentment</div>
-      <div class="brand-sub">Owner Companion & Care</div>
-    </div>
-    <div class="status-pill">
-      <div class="status-dot"></div>
-      ACTIVE
+  <!-- Mobile App Bar -->
+  <header class="app-bar">
+    <div class="brand-title">AUTOCONTENTMENT</div>
+    <div class="motion-indicator" id="motionStatusBadge">
+      <div class="motion-dot" id="motionDot"></div>
+      <span id="motionLabel">GPS: CHECKING</span>
     </div>
   </header>
 
-  <div class="container">
+  <div class="main-wrap">
 
-    <!-- Car Identity Card -->
-    <div class="car-card">
-      <div class="car-title">2022 Mercedes-Benz C300</div>
-      <div class="car-vin">VIN: WDD2050481R****** (Verified Tokunbo)</div>
-      <div class="car-meta-row">
-        <div class="car-meta-item">
-          <span class="meta-lbl">Mileage</span>
-          <span class="meta-val">34,500 km</span>
+    <!-- Vehicle Details -->
+    <div class="vehicle-card">
+      <div class="veh-name">2022 Mercedes-Benz C300</div>
+      <div class="veh-tag">Verified Tokunbo // AutoContentment Certified</div>
+      <div class="veh-stats-row">
+        <div>
+          <div class="veh-stat-lbl">Mileage</div>
+          <div class="veh-stat-val">34,500 km</div>
         </div>
-        <div class="car-meta-item">
-          <span class="meta-lbl">Next Oil Check</span>
-          <span class="meta-val">In 2,500 km</span>
+        <div>
+          <div class="veh-stat-lbl">Oil Check</div>
+          <div class="veh-stat-val">In 2,500 km</div>
         </div>
-        <div class="car-meta-item">
-          <span class="meta-lbl">Fuel Efficiency</span>
-          <span class="meta-val">9.2 km/L</span>
+        <div>
+          <div class="veh-stat-lbl">Fuel Burn</div>
+          <div class="veh-stat-val">9.2 km/L</div>
         </div>
       </div>
     </div>
 
-    <!-- Health Hero Dial -->
+    <!-- Live Motion & Speed Banner -->
+    <div class="motion-banner">
+      <div>
+        <div class="banner-lbl">Vehicle Velocity (GPS)</div>
+        <div style="font-size:11px; color:#38bdf8;" id="motionSubText">Monitoring motion sensor...</div>
+      </div>
+      <div class="banner-speed" id="gpsSpeedDisplay">0.0 km/h</div>
+    </div>
+
+    <!-- Central Health Dial -->
     <div class="health-hero">
-      <div class="dial-circle">
-        <div class="score-num">96%</div>
-        <div class="score-lbl">Optimal</div>
+      <div class="dial-wrap">
+        <div class="dial-score" id="heroScore">96%</div>
+        <div class="dial-status" id="heroStatusText">Optimal</div>
       </div>
-      <div class="hero-summary">
-        Your vehicle is running smooth. Zero engine knocks detected, suspension damping is firm, and no active error lights.
+      <div class="dial-caption" id="heroCaption">
+        Engine idle is balanced. Suspension damping resistance is nominal, and zero error codes are active.
       </div>
     </div>
 
-    <!-- 3 Simple Actions -->
-    <div class="action-grid">
-      <!-- 1. Engine Sound Check -->
-      <div class="action-tile" onclick="openModal('sound')">
+    <!-- 3 Action Cards -->
+    <div class="action-stack">
+      <!-- Action 1: Live Real Microphone Sound Test -->
+      <div class="action-tile" onclick="openAudioModal()">
         <div class="tile-left">
-          <div class="tile-icon" style="color: #60a5fa;">🎙️</div>
+          <div class="tile-icon-box" style="color: #60a5fa;">🎙️</div>
           <div>
-            <div class="tile-title">Check Engine Sound</div>
-            <div class="tile-sub">Hold phone near engine for 10 seconds</div>
+            <div class="tile-h1">Real Microphone Sound Test</div>
+            <div class="tile-p">Make a sound or hold near engine to test live</div>
           </div>
         </div>
-        <div class="tile-arrow">›</div>
+        <div class="tile-chevron">›</div>
       </div>
 
-      <!-- 2. Pothole & Road Guard -->
-      <div class="action-tile" onclick="openModal('motion')">
+      <!-- Action 2: Motion Road Pothole Guard -->
+      <div class="action-tile" onclick="openMotionModal()">
         <div class="tile-left">
-          <div class="tile-icon" style="color: #34d399;">🛡️</div>
+          <div class="tile-icon-box" style="color: #34d399;">🛡️</div>
           <div>
-            <div class="tile-title">Pothole & Suspension Guard</div>
-            <div class="tile-sub">Put phone in holder while driving</div>
+            <div class="tile-h1">In-Motion Pothole Guard</div>
+            <div class="tile-p">Tracks road bumps while car is moving</div>
           </div>
         </div>
-        <div class="tile-arrow">›</div>
+        <div class="tile-chevron">›</div>
       </div>
 
-      <!-- 3. Ask Mechanic in Pidgin / Yoruba / Igbo -->
-      <a class="action-tile" href="https://wa.me/?text=Hello%20AutoContentment,%20my%20car%20is%20making%20a%20sound" target="_blank">
+      <!-- Action 3: Chat with Mechanic -->
+      <a class="action-tile" href="https://wa.me/?text=Hello%20AutoContentment,%20my%20car%20has%20an%20issue" target="_blank">
         <div class="tile-left">
-          <div class="tile-icon" style="color: #f59e0b;">💬</div>
+          <div class="tile-icon-box" style="color: #f59e0b;">💬</div>
           <div>
-            <div class="tile-title">Chat with Mechanic (WhatsApp)</div>
-            <div class="tile-sub">Send voice note in Pidgin, Yoruba, or Igbo</div>
+            <div class="tile-h1">Ask Mechanic (WhatsApp)</div>
+            <div class="tile-p">Send voice notes in Pidgin, Yoruba, or Igbo</div>
           </div>
         </div>
-        <div class="tile-arrow">›</div>
+        <div class="tile-chevron">›</div>
       </a>
     </div>
 
-    <!-- Dealer Store: Genuine Oil & Parts -->
-    <div class="store-card">
+    <!-- Genuine Oil Store Hook -->
+    <div class="store-banner">
       <div>
-        <div class="store-badge">AutoContentment Verified</div>
-        <div class="store-title">Genuine OEM 0W-20 Synthetic Oil</div>
-        <div class="store-sub">100% Original — Protects timing chain (₦45,000)</div>
+        <div class="store-pill">AutoContentment Verified</div>
+        <div class="store-h1">Genuine OEM 0W-20 Synthetic Oil</div>
+        <div class="store-desc">Prevents timing chain wear (₦45,000)</div>
       </div>
-      <a href="https://wa.me/?text=I%20want%20to%20order%20genuine%200W-20%20oil%20for%20my%20C300" target="_blank" class="buy-link">Order</a>
-    </div>
-
-    <div class="tech-toggle">
-      Mechanical Engineer View? <a href="javascript:void(0)" onclick="openModal('tech')">View Oscilloscope & FFT</a>
+      <a href="https://wa.me/?text=I%20want%20to%20order%20genuine%200W-20%20oil" target="_blank" class="store-btn">Order</a>
     </div>
 
   </div>
 
-  <!-- POPUP MODALS -->
-  <div class="modal-overlay" id="actionModal" onclick="closeModal(event)">
-    <div class="modal-sheet" onclick="event.stopPropagation()">
-      <div id="modalContent"></div>
+  <!-- SLIDE-UP MODAL SHEET -->
+  <div class="sheet-backdrop" id="sheetBackdrop" onclick="closeSheet(event)">
+    <div class="sheet-card" onclick="event.stopPropagation()">
+      <div id="sheetContent"></div>
     </div>
   </div>
 
   <script>
-    function openModal(type) {
-      const modal = document.getElementById('actionModal');
-      const content = document.getElementById('modalContent');
-      modal.style.display = 'flex';
+    // 1. HOW IT KNOWS YOU ARE MOVING: GPS SPEED + ACCELEROMETER VARIANCE
+    let currentSpeed = 0;
+    let isMoving = false;
 
-      if (type === 'sound') {
-        content.innerHTML = `
-          <div class="modal-title">🎙️ 10-Second Engine Purr Check</div>
-          <div class="modal-sub">Start your car, let it idle, and hold your phone 30 cm from the engine. We check for valve tick, belt slippage, and bottom-end knock.</div>
-          <div style="background:#070a10; padding:16px; border-radius:12px; margin-bottom:16px; border:1px solid #1e2433; text-align:center;">
-            <div style="font-size:28px; margin-bottom:8px;">🎧</div>
-            <div style="font-size:14px; font-weight:700; color:#34d399;">Engine Sound: 94% Smooth</div>
-            <div style="font-size:12px; color:#8b949e; margin-top:4px;">No lifter ticks or bearing whine detected.</div>
-          </div>
-          <button class="primary-btn" onclick="alert('Listening active! Engine sound is healthy and harmonic.')">Start Listening Test</button>
-          <button class="cancel-btn" onclick="closeModal()">Close</button>
-        `;
-      } else if (type === 'motion') {
-        content.innerHTML = `
-          <div class="modal-title">🛡️ In-Motion Road Guard</div>
-          <div class="modal-sub">Put your phone inside your car mount or cup holder. While driving, it detects severe pothole crater impacts and tire wobbles automatically.</div>
-          <div style="background:#070a10; padding:16px; border-radius:12px; margin-bottom:16px; border:1px solid #1e2433;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-              <span style="font-size:12px; color:#8b949e;">Normal Road Shock</span>
-              <span style="font-size:12px; font-weight:700; color:#34d399;" id="gReadout">0.12 G (Smooth)</span>
-            </div>
-            <div style="display:flex; justify-content:space-between;">
-              <span style="font-size:12px; color:#8b949e;">Hard Impacts Logged</span>
-              <span style="font-size:12px; font-weight:700; color:#fff;">0 Craters</span>
-            </div>
-          </div>
-          <button class="primary-btn" onclick="startMotionTest()">Engage Guard While Driving</button>
-          <button class="cancel-btn" onclick="closeModal()">Close</button>
-        `;
-      } else if (type === 'tech') {
-        content.innerHTML = `
-          <div class="modal-title">🔬 Engineering Telemetry</div>
-          <div class="modal-sub">Quarter-car dynamic resonance, FFT spectral peaks, and normal vector isolation:</div>
-          <div style="background:#070a10; padding:12px; border-radius:8px; font-family:monospace; font-size:12px; color:#60a5fa; margin-bottom:16px; line-height:1.6;">
-            • Sprung Mass Freq: 1.4 Hz<br>
-            • Unsprung Tire Hop: 11.2 Hz (at 80 km/h)<br>
-            • Driveline Tripod Order: 33.6 Hz<br>
-            • Vector Invariance: ||a|| = √(x² + y² + z²)
-          </div>
-          <button class="cancel-btn" onclick="closeModal()">Back to Owner View</button>
-        `;
+    if ('geolocation' in navigator) {
+      navigator.geolocation.watchPosition(
+        (pos) => {
+          // Speed comes in meters/second from GPS hardware
+          const speedMs = pos.coords.speed;
+          if (speedMs !== null && speedMs !== undefined) {
+            currentSpeed = Math.max(0, speedMs * 3.6); // Convert to km/h
+          } else {
+            currentSpeed = 0;
+          }
+
+          document.getElementById('gpsSpeedDisplay').textContent = currentSpeed.toFixed(1) + ' km/h';
+
+          if (currentSpeed > 5.0) {
+            setMotionState(true, 'IN MOTION');
+          } else {
+            setMotionState(false, 'STATIONARY');
+          }
+        },
+        (err) => {
+          // If GPS is disabled, fallback to accelerometer motion detection
+          document.getElementById('motionSubText').textContent = 'Using inertial motion sensors';
+          startAccelerometerMotionDetection();
+        },
+        { enableHighAccuracy: true, maximumAge: 1000 }
+      );
+    } else {
+      startAccelerometerMotionDetection();
+    }
+
+    function setMotionState(moving, text) {
+      isMoving = moving;
+      const dot = document.getElementById('motionDot');
+      const label = document.getElementById('motionLabel');
+      const sub = document.getElementById('motionSubText');
+
+      if (moving) {
+        dot.classList.add('moving');
+        label.textContent = text;
+        label.style.color = '#34d399';
+        sub.textContent = 'Car in motion — Suspension Guard Active';
+      } else {
+        dot.classList.remove('moving');
+        label.textContent = text;
+        label.style.color = '#38bdf8';
+        sub.textContent = 'Vehicle stationary / Parked';
       }
     }
 
-    function closeModal() {
-      document.getElementById('actionModal').style.display = 'none';
-    }
-
-    function startMotionTest() {
-      if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-        DeviceMotionEvent.requestPermission().catch(console.error);
-      }
+    function startAccelerometerMotionDetection() {
       window.addEventListener('devicemotion', (e) => {
         const acc = e.accelerationIncludingGravity || e.acceleration;
         if (!acc || acc.x === null) return;
         const norm = Math.sqrt((acc.x||0)**2 + (acc.y||0)**2 + (acc.z||0)**2);
-        const g = Math.abs(norm - 9.81) / 9.81;
-        const el = document.getElementById('gReadout');
-        if (el) el.textContent = g.toFixed(2) + ' G (' + (g > 1.8 ? 'HARD HIT' : 'Smooth') + ')';
+        const delta = Math.abs(norm - 9.81);
+        if (delta > 0.45) {
+          setMotionState(true, 'IN MOTION');
+        } else {
+          setMotionState(false, 'PARKED / IDLE');
+        }
       });
-      alert('Pothole Guard is active! Keep phone in holder while driving.');
+    }
+
+    // 2. REAL MICROPHONE ACCESS: LISTENS TO YOUR ACTUAL SOUND IN REAL TIME!
+    let audioContext = null;
+    let analyser = null;
+    let micStream = null;
+    let animId = null;
+
+    function openAudioModal() {
+      const backdrop = document.getElementById('sheetBackdrop');
+      const content = document.getElementById('sheetContent');
+      backdrop.style.display = 'flex';
+
+      content.innerHTML = `
+        <div class="sheet-title">🎙️ Live Engine Microphone Analyzer</div>
+        <div class="sheet-desc">Make any noise, whistle, talk, or hold the phone near your engine. The live frequency visualizer will react directly to your sound!</div>
+        <canvas id="audioCanvas" width="400" height="90"></canvas>
+        <div style="background:#090d14; border:1px solid #1e2433; border-radius:10px; padding:12px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:12px; color:#8b949e;">Live Audio Signal:</span>
+          <span style="font-size:13px; font-weight:700; color:#34d399;" id="liveAudioVerdict">Awaiting Microphone...</span>
+        </div>
+        <button class="btn-solid" id="startMicBtn" onclick="engageMicrophone()">▶ Turn On Microphone & Listen</button>
+        <button class="btn-close" onclick="closeSheet()">Close</button>
+      `;
+    }
+
+    async function engageMicrophone() {
+      const btn = document.getElementById('startMicBtn');
+      const verdict = document.getElementById('liveAudioVerdict');
+
+      try {
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+
+        const source = audioContext.createMediaStreamSource(micStream);
+        source.connect(analyser);
+
+        btn.textContent = '⏹ Listening Live (Speak / Make Sound Now)';
+        btn.style.background = '#dc2626';
+        verdict.textContent = 'Analyzing Real Frequencies...';
+
+        drawRealAudioWave();
+      } catch (err) {
+        alert('Microphone access denied or unsupported: ' + err.message);
+      }
+    }
+
+    function drawRealAudioWave() {
+      const canvas = document.getElementById('audioCanvas');
+      if (!canvas || !analyser) return;
+      const ctx = canvas.getContext('2d');
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      function renderFrame() {
+        if (!analyser) return;
+        animId = requestAnimationFrame(renderFrame);
+        analyser.getByteFrequencyData(dataArray);
+
+        ctx.fillStyle = '#07090e';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const barWidth = (canvas.width / bufferLength) * 2.5;
+        let x = 0;
+        let maxEnergy = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+          const barHeight = (dataArray[i] / 255) * canvas.height;
+          if (dataArray[i] > maxEnergy) maxEnergy = dataArray[i];
+
+          ctx.fillStyle = dataArray[i] > 180 ? '#ef4444' : (dataArray[i] > 100 ? '#f59e0b' : '#10b981');
+          ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+          x += barWidth + 1;
+        }
+
+        const verdict = document.getElementById('liveAudioVerdict');
+        if (verdict) {
+          if (maxEnergy > 160) {
+            verdict.textContent = 'High Sound Energy Detected (Loud Noise)';
+            verdict.style.color = '#f59e0b';
+          } else if (maxEnergy > 60) {
+            verdict.textContent = 'Sound Detected: Smooth Harmonic Idle';
+            verdict.style.color = '#34d399';
+          } else {
+            verdict.textContent = 'Listening (Quiet / Low Noise)';
+            verdict.style.color = '#8b949e';
+          }
+        }
+      }
+      renderFrame();
+    }
+
+    function openMotionModal() {
+      const backdrop = document.getElementById('sheetBackdrop');
+      const content = document.getElementById('sheetContent');
+      backdrop.style.display = 'flex';
+
+      content.innerHTML = `
+        <div class="sheet-title">🛡️ Road & Pothole Guard Active</div>
+        <div class="sheet-desc">Place your phone on your dashboard or mount. When the car moves, it measures road vibration and logs severe crater hits.</div>
+        <div style="background:#090d14; border:1px solid #1e2433; border-radius:10px; padding:14px; margin-bottom:14px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span style="font-size:12px; color:#8b949e;">Vehicle Movement:</span>
+            <span style="font-size:13px; font-weight:700; color:#fff;" id="modalMovingState">${isMoving ? '🚗 IN MOTION' : '🅿️ PARKED'}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="font-size:12px; color:#8b949e;">Speed:</span>
+            <span style="font-size:13px; font-weight:700; color:#38bdf8;">${currentSpeed.toFixed(1)} km/h</span>
+          </div>
+        </div>
+        <button class="btn-solid" onclick="closeSheet()">Keep Active in Background</button>
+      `;
+    }
+
+    function closeSheet() {
+      document.getElementById('sheetBackdrop').style.display = 'none';
+      if (micStream) {
+        micStream.getTracks().forEach(t => t.stop());
+        micStream = null;
+      }
+      if (animId) cancelAnimationFrame(animId);
+      analyser = null;
     }
   </script>
 </body>
