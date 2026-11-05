@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>AutoContentment | Autonomous Vehicle Acoustic & Telematics Suite</title>
+  <title>AutoContentment | Continuous Acoustic Telematics</title>
   
   <style>
     :root {
       --bg: #06080d;
       --surface: #0e121a;
-      --border: #1f2738;
+      --border: #1e2738;
       --text: #ffffff;
       --text-muted: #8b949e;
       --accent: #2563eb;
@@ -23,14 +23,13 @@
     body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; min-height: 100vh; }
 
     /* Top Bar */
-    .top-nav { background: rgba(10, 13, 20, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .top-nav { background: rgba(10, 13, 20, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 14px 22px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     .brand-logo { font-size: 15px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
     .telemetry-pill { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; background: #151d2a; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--border); color: var(--cyan); font-family: var(--mono); }
     .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); }
     .status-dot.active { background: var(--green); box-shadow: 0 0 10px var(--green); }
 
-    /* Responsive Grid */
-    .app-container { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+    .app-container { max-width: 1200px; margin: 0 auto; padding: 20px 16px; }
     .cockpit-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
     @media (min-width: 900px) {
       .cockpit-grid { grid-template-columns: 1.15fr 0.85fr; gap: 24px; }
@@ -41,32 +40,34 @@
     .card-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
     .badge { font-family: var(--mono); font-size: 10px; background: #162030; color: var(--cyan); padding: 3px 8px; border-radius: 4px; }
 
-    /* Vehicle Banner */
-    .car-profile { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #141a26 0%, #0c1017 100%); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-    .car-main { font-size: 17px; font-weight: 800; color: #fff; }
-    .car-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    /* Continuous Live Radar Display */
+    .radar-display { background: #070a10; border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin: 12px 0; text-align: center; }
+    .radar-main-icon { font-size: 40px; margin-bottom: 6px; }
+    .radar-main-label { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+    .radar-sub-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
 
-    /* Real-Time Waveform / Visualizer */
-    #soundSpectrumCanvas { width: 100%; height: 110px; background: #05070a; border: 1px solid #161e2e; border-radius: 10px; display: block; margin: 12px 0; }
+    /* Live Multi-Sound Spectrum Bars */
+    .sound-bars-stack { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+    .sound-row { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+    .sound-name { width: 140px; font-weight: 600; display: flex; align-items: center; gap: 6px; color: #cbd5e1; }
+    .sound-track { flex: 1; height: 8px; background: #151d2a; border-radius: 4px; overflow: hidden; margin: 0 10px; }
+    .sound-fill { height: 100%; width: 0%; border-radius: 4px; transition: width 0.1s ease-out; }
+    .sound-pct { width: 45px; text-align: right; font-family: var(--mono); color: var(--text-muted); font-size: 11px; }
 
-    /* Progress bar for 3-second sampling */
-    .sample-progress-wrap { height: 4px; background: #151d2a; border-radius: 2px; overflow: hidden; margin: 10px 0; display: none; }
-    .sample-progress-bar { height: 100%; width: 0%; background: var(--accent); transition: width 0.1s linear; }
+    /* Live Oscilloscope */
+    #liveCanvas { width: 100%; height: 95px; background: #040609; border: 1px solid #161e2e; border-radius: 10px; display: block; margin: 12px 0; }
 
-    /* Stable Classification Banner */
-    .verdict-box { background: #090d14; border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin: 14px 0; min-height: 90px; }
-    .verdict-title { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-    .verdict-desc { font-size: 13px; color: #cbd5e1; line-height: 1.5; }
+    /* Controls */
+    .btn-engage { background: var(--accent); color: #fff; border: none; border-radius: 12px; padding: 15px; font-size: 14px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s; }
+    .btn-engage:active { transform: scale(0.98); }
+    .btn-engage.live { background: var(--red); animation: pulseRed 2s infinite; }
+    @keyframes pulseRed { 0%, 100% { box-shadow: 0 0 10px rgba(239,68,68,0.3); } 50% { box-shadow: 0 0 20px rgba(239,68,68,0.6); } }
 
-    /* Metrics Grid */
+    /* Motion Cards */
     .speed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
     .metric-cell { background: #080c14; border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
     .cell-lbl { font-size: 11px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
     .cell-val { font-family: var(--mono); font-size: 32px; font-weight: 800; line-height: 1.1; margin-top: 6px; }
-
-    .btn-action { background: var(--accent); color: #fff; border: none; border-radius: 12px; padding: 15px; font-size: 14px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s; }
-    .btn-action:active { transform: scale(0.98); }
-    .btn-action.recording { background: var(--red); }
 
     /* Dealer Store */
     .dealer-card { background: linear-gradient(135deg, #0d1726 0%, #080e18 100%); border: 1px solid #1e3a8a; border-radius: 14px; padding: 18px; display: flex; justify-content: space-between; align-items: center; }
@@ -80,68 +81,84 @@
     <div class="brand-logo">AUTOCONTENTMENT</div>
     <div class="telemetry-pill">
       <div class="status-dot" id="gpsDot"></div>
-      <span id="motionPillText">PARKED (0.0 km/h)</span>
+      <span id="motionStatusPill">PARKED (0.0 km/h)</span>
     </div>
   </header>
 
   <div class="app-container">
 
-    <!-- Car Identity Profile -->
-    <div class="car-profile">
-      <div>
-        <div class="car-main" id="vehTitle">Mercedes-Benz C300 (W205)</div>
-        <div class="car-sub">Target Engine: M274 2.0L Turbo • Factory Acoustic Profile Active</div>
-      </div>
-      <select id="enginePick" onchange="switchEngineProfile()" style="background:#161d2a; color:#fff; border:1px solid #2d3748; border-radius:8px; padding:8px 12px; font-size:12px;">
-        <option value="m274">Mercedes C300 (M274 2.0L Turbo)</option>
-        <option value="2gr">Lexus RX350 / Camry (2GR-FE V6)</option>
-        <option value="k24">Honda Accord / CR-V (K24 i-VTEC)</option>
-      </select>
-    </div>
-
-    <!-- 2-Column Responsive Layout -->
     <div class="cockpit-grid">
 
-      <!-- LEFT: ACOUSTIC FREQUENCY CLASSIFIER -->
+      <!-- LEFT: CONTINUOUS ACOUSTIC RADAR -->
       <div class="card">
         <div class="card-hdr">
-          <span class="card-title">Acoustic Engine & Sound Diagnostic</span>
-          <span class="badge" id="micStatus">MIC READY</span>
+          <span class="card-title">Live Acoustic Radar (Always-On Listener)</span>
+          <span class="badge" id="radarBadge">RADAR STANDBY</span>
         </div>
 
         <p style="font-size: 13px; color: var(--text-muted); line-height: 1.4;">
-          Hold your phone near the engine or speak/hum. The 3-second spectral sampling distinguishes between <b>human vocal frequencies</b> vs. <b>mechanical engine combustion harmonics</b>.
+          Continuously differentiates between concurrent sounds in real time: human voices, whistling, bird chirps, wind, and vehicle engine combustion.
         </p>
 
-        <!-- Waveform Canvas -->
-        <canvas id="soundSpectrumCanvas" height="110"></canvas>
-
-        <!-- Sampling Progress Bar -->
-        <div class="sample-progress-wrap" id="progressWrap">
-          <div class="sample-progress-bar" id="progressBar"></div>
+        <!-- Live Radar Primary Identification Box -->
+        <div class="radar-display">
+          <div class="radar-main-icon" id="mainIcon">🎧</div>
+          <div class="radar-main-label" id="mainLabel">Acoustic Radar Standby</div>
+          <div class="radar-sub-desc" id="mainDesc">Tap "Engage Live Acoustic Radar" to begin listening continuously.</div>
         </div>
 
-        <!-- Stable Diagnostic Verdict Box -->
-        <div class="verdict-box" id="verdictBox">
-          <div class="verdict-title" id="verdictHdr" style="color: var(--cyan);">
-            <span>🎧 Ready to Analyze Sound</span>
+        <!-- Live Oscilloscope -->
+        <canvas id="liveCanvas" height="95"></canvas>
+
+        <!-- Concurrent Sound Channels Meter -->
+        <div class="sound-bars-stack">
+          <!-- 1. Human Voice / Speech -->
+          <div class="sound-row">
+            <span class="sound-name">👤 Human Voice</span>
+            <div class="sound-track"><div class="sound-fill" id="barVoice" style="background:#eab308;"></div></div>
+            <span class="sound-pct" id="pctVoice">0%</span>
           </div>
-          <div class="verdict-desc" id="verdictBody">
-            Tap the button below. The system will record a 3-second audio sample, average its frequency peaks, and deliver a definitive verdict.
+
+          <!-- 2. Human Whistling / Musical Tone -->
+          <div class="sound-row">
+            <span class="sound-name">🎵 Whistling</span>
+            <div class="sound-track"><div class="sound-fill" id="barWhistle" style="background:#38bdf8;"></div></div>
+            <span class="sound-pct" id="pctWhistle">0%</span>
+          </div>
+
+          <!-- 3. Bird Chirp / High Whistle -->
+          <div class="sound-row">
+            <span class="sound-name">🐦 Bird Chirps</span>
+            <div class="sound-track"><div class="sound-fill" id="barBirds" style="background:#a855f7;"></div></div>
+            <span class="sound-pct" id="pctBirds">0%</span>
+          </div>
+
+          <!-- 4. Vehicle Engine Combustion -->
+          <div class="sound-row">
+            <span class="sound-name">🚗 Engine Rumble</span>
+            <div class="sound-track"><div class="sound-fill" id="barEngine" style="background:#10b981;"></div></div>
+            <span class="sound-pct" id="pctEngine">0%</span>
+          </div>
+
+          <!-- 5. Fan / Wind / Airflow -->
+          <div class="sound-row">
+            <span class="sound-name">💨 Fan / Wind</span>
+            <div class="sound-track"><div class="sound-fill" id="barWind" style="background:#64748b;"></div></div>
+            <span class="sound-pct" id="pctWind">0%</span>
           </div>
         </div>
 
-        <button class="btn-action" id="micBtn" onclick="runAcousticSampling()">
-          🎙️ Start 3-Second Sound Diagnostic
+        <button class="btn-engage" id="radarBtn" onclick="toggleContinuousRadar()">
+          ▶ Engage Live Acoustic Radar
         </button>
       </div>
 
-      <!-- RIGHT: IN-MOTION SPEED & DEALER STORE -->
+      <!-- RIGHT: IN-MOTION TELEMETRY & GENUINE STORE -->
       <div>
-        <!-- In-Motion Velocity & Pothole Guard -->
+        <!-- In-Motion Speed & Road Roughness -->
         <div class="card" style="margin-bottom: 20px;">
           <div class="card-hdr">
-            <span class="card-title">In-Motion Velocity & Road Guard</span>
+            <span class="card-title">In-Motion Velocity & Pothole Guard</span>
             <span class="badge">GPS ACTIVE</span>
           </div>
 
@@ -159,7 +176,7 @@
           <div style="font-size: 13px; color: #cbd5e1; line-height: 1.5; background: #080c14; border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
             <div style="font-weight: 700; color: #fff; margin-bottom: 4px;" id="motionHdr">Vehicle is Parked</div>
             <div id="motionDesc" style="color: var(--text-muted); font-size: 12px;">
-              Keep phone in mount. When you drive, GPS velocity and pothole crater detection engage automatically.
+              Place phone in car mount. As you drive, GPS and accelerometer detect road corrugation and crater impacts automatically.
             </div>
           </div>
         </div>
@@ -169,7 +186,7 @@
           <div>
             <div style="font-size: 10px; font-weight: 800; color: #60a5fa; text-transform: uppercase;">AutoContentment Verified</div>
             <div style="font-size: 14px; font-weight: 800; color: #fff; margin-top: 2px;">Genuine OEM 0W-20 Synthetic Oil</div>
-            <div style="font-size: 11px; color: var(--text-muted);">100% Genuine • Protects timing chain (₦45,000)</div>
+            <div style="font-size: 11px; color: var(--text-muted);">100% Original • Protects timing chain (₦45,000)</div>
           </div>
           <a href="https://wa.me/?text=I%20want%20to%20order%20genuine%200W-20%20oil" target="_blank" class="order-btn">Order Direct</a>
         </div>
@@ -180,210 +197,198 @@
   </div>
 
   <script>
-    // Engine Profiles
-    const PROFILES = {
-      m274: { name: "Mercedes-Benz C300 (M274)", idleDesc: "Optimal Mercedes M274 2.0L Turbo idle. Valve train harmonics and direct injector timing are harmonic." },
-      2gr: { name: "Lexus RX350 / Camry (2GR-FE)", idleDesc: "Optimal Lexus 2GR-FE V6 purr. Hydraulic lifters and VVTi gears running smooth." },
-      k24: { name: "Honda Accord / CR-V (K24)", idleDesc: "Optimal Honda K24 i-VTEC idle. VTC actuator locked in baseline position." }
-    };
-
-    let activeProfileKey = 'm274';
-
-    function switchEngineProfile() {
-      activeProfileKey = document.getElementById('enginePick').value;
-      document.getElementById('vehTitle').textContent = PROFILES[activeProfileKey].name;
-    }
-
-    // 3-SECOND TEMPORAL ACOUSTIC SAMPLING (NO MORE FLICKERING!)
+    // CONTINUOUS ALWAYS-ON ACOUSTIC RADAR ENGINE
     let audioCtx = null;
     let analyser = null;
     let micStream = null;
+    let isLive = false;
     let animId = null;
-    let isSampling = false;
 
-    async function runAcousticSampling() {
-      const btn = document.getElementById('micBtn');
-      const micBadge = document.getElementById('micStatus');
-      const pWrap = document.getElementById('progressWrap');
-      const pBar = document.getElementById('progressBar');
-      const hdr = document.getElementById('verdictHdr');
-      const body = document.getElementById('verdictBody');
+    // Running smoothed energies for each sound channel
+    let smooth = { voice: 0, whistle: 0, birds: 0, engine: 0, wind: 0 };
 
-      if (isSampling) return;
+    async function toggleContinuousRadar() {
+      const btn = document.getElementById('radarBtn');
+      const badge = document.getElementById('radarBadge');
 
-      try {
-        micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 1024; // 512 frequency bins (much sharper resolution: ~43 Hz per bin)
+      if (!isLive) {
+        try {
+          micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 1024; // 512 frequency bins
 
-        const source = audioCtx.createMediaStreamSource(micStream);
-        source.connect(analyser);
+          const source = audioCtx.createMediaStreamSource(micStream);
+          source.connect(analyser);
 
-        isSampling = true;
-        btn.textContent = '⏹ Sampling Audio (Hold steady for 3 seconds)...';
-        btn.classList.add('recording');
-        micBadge.textContent = 'SAMPLING (3s)';
-        micBadge.style.color = '#ef4444';
-        pWrap.style.display = 'block';
+          isLive = true;
+          btn.textContent = '⏹ Stop Acoustic Radar';
+          btn.classList.add('live');
+          badge.textContent = 'RADAR LIVE (LISTENING)';
+          badge.style.color = '#10b981';
 
-        hdr.innerHTML = `<span style="color: var(--amber);">⏳ Listening & Averaging Frequencies...</span>`;
-        body.textContent = "Sampling sound energy across 100 audio frames...";
-
-        drawLiveWaveform();
-
-        // Accumulate 3 seconds of frequency data
-        const sampleBuffer = [];
-        const startTime = Date.now();
-        const duration = 3000; // 3 seconds
-
-        const sampleInterval = setInterval(() => {
-          const elapsed = Date.now() - startTime;
-          const pct = Math.min((elapsed / duration) * 100, 100);
-          pBar.style.width = pct + '%';
-
-          if (analyser) {
-            const data = new Uint8Array(analyser.frequencyBinCount);
-            analyser.getByteFrequencyData(data);
-            sampleBuffer.push(Array.from(data));
-          }
-
-          if (elapsed >= duration) {
-            clearInterval(sampleInterval);
-            finishSampling(sampleBuffer);
-          }
-        }, 30);
-
-      } catch (err) {
-        alert('Microphone permission required: ' + err.message);
+          runContinuousRadarLoop();
+        } catch (err) {
+          alert('Microphone permission required for acoustic radar: ' + err.message);
+        }
+      } else {
+        stopContinuousRadar();
       }
     }
 
-    function finishSampling(buffer) {
-      isSampling = false;
-      const btn = document.getElementById('micBtn');
-      const micBadge = document.getElementById('micStatus');
-      const pWrap = document.getElementById('progressWrap');
-
-      btn.textContent = '🎙️ Test Again';
-      btn.classList.remove('recording');
-      micBadge.textContent = 'ANALYSIS COMPLETE';
-      micBadge.style.color = '#10b981';
-      pWrap.style.display = 'none';
+    function stopContinuousRadar() {
+      isLive = false;
+      const btn = document.getElementById('radarBtn');
+      const badge = document.getElementById('radarBadge');
+      btn.textContent = '▶ Engage Live Acoustic Radar';
+      btn.classList.remove('live');
+      badge.textContent = 'RADAR STANDBY';
+      badge.style.color = 'var(--cyan)';
 
       if (micStream) {
         micStream.getTracks().forEach(t => t.stop());
         micStream = null;
       }
+      if (animId) cancelAnimationFrame(animId);
 
-      // Compute Average Spectrum across all 100 frames
-      if (buffer.length === 0) return;
-      const numBins = buffer[0].length;
-      const avgSpectrum = new Array(numBins).fill(0);
-
-      for (let f = 0; f < buffer.length; f++) {
-        for (let b = 0; b < numBins; b++) {
-          avgSpectrum[b] += buffer[f][b];
-        }
-      }
-      for (let b = 0; b < numBins; b++) {
-        avgSpectrum[b] = avgSpectrum[b] / buffer.length;
-      }
-
-      // Find Dominant Frequency Peak
-      let peakVal = 0;
-      let peakBin = 0;
-      let totalEnergy = 0;
-
-      for (let b = 1; b < numBins; b++) {
-        totalEnergy += avgSpectrum[b];
-        if (avgSpectrum[b] > peakVal) {
-          peakVal = avgSpectrum[b];
-          peakBin = b;
-        }
-      }
-
-      const sampleRate = audioCtx ? audioCtx.sampleRate : 44100;
-      const dominantFreq = Math.round(peakBin * (sampleRate / 1024));
-      const avgEnergy = totalEnergy / numBins;
-
-      deliverDefinitiveVerdict(dominantFreq, peakVal, avgEnergy);
+      // Reset bars
+      updateBar('barVoice', 'pctVoice', 0);
+      updateBar('barWhistle', 'pctWhistle', 0);
+      updateBar('barBirds', 'pctBirds', 0);
+      updateBar('barEngine', 'pctEngine', 0);
+      updateBar('barWind', 'pctWind', 0);
+      document.getElementById('mainIcon').textContent = '🎧';
+      document.getElementById('mainLabel').textContent = 'Acoustic Radar Standby';
+      document.getElementById('mainDesc').textContent = 'Tap "Engage Live Acoustic Radar" to resume.';
     }
 
-    async function deliverDefinitiveVerdict(freq, peak, energy) {
-      const hdr = document.getElementById('verdictHdr');
-      const body = document.getElementById('verdictBody');
-      const profile = PROFILES[activeProfileKey];
-
-      // 1. Noise Floor Check
-      if (peak < 25) {
-        hdr.innerHTML = `<span style="color: var(--text-muted);">🔇 Ambient Noise Floor Too Low</span>`;
-        body.textContent = "The sound was too quiet to classify. Make your sound louder or hold closer to the microphone.";
-        return;
-      }
-
-      // 2. Call Intelligent Acoustic API
-      try {
-        const res = await fetch('/api/classify-audio', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ frequency: freq, peak: peak, centroid: freq * 1.4 })
-        });
-        const result = await res.json();
-
-        hdr.innerHTML = `<span style="color: #38bdf8;">${result.title}</span>`;
-        body.textContent = result.description;
-        return;
-      } catch (e) {
-        // Fallback local logic
-      }
-
-      // Local Fallback Classification:
-      if (freq >= 2700) {
-        hdr.innerHTML = `<span style="color: #f59e0b;">🐦 Bird Chirping / High Whistle (~${freq} Hz)</span>`;
-        body.textContent = "Identified avian high-frequency chirping or whistle, not vehicle mechanics.";
-      } else if (freq >= 850 && freq <= 2600) {
-        hdr.innerHTML = `<span style="color: #60a5fa;">🎵 Whistling / Musical Tone (~${freq} Hz)</span>`;
-        body.textContent = "Sinusoidal whistling tone detected. Please record car engine mechanics.";
-      } else if (freq >= 85 && freq <= 280) {
-        hdr.innerHTML = `<span style="color: #eab308;">👤 Human Voice / Vocal Humming (~${freq} Hz)</span>`;
-        body.textContent = "Human vocal speech or humming detected. Point phone towards engine bay.";
-      } else {
-        hdr.innerHTML = `<span style="color: #10b981;">🚗 Vehicle Engine Combustion Detected (~${freq} Hz)</span>`;
-        body.textContent = `${profile.name} idle purr confirmed. Mechanical rhythm is harmonic.`;
-      }
-    }
-
-    function drawLiveWaveform() {
-      const canvas = document.getElementById('soundSpectrumCanvas');
-      if (!canvas || !analyser) return;
+    function runContinuousRadarLoop() {
+      const canvas = document.getElementById('liveCanvas');
       const ctx = canvas.getContext('2d');
-      const bufferLength = analyser.frequencyBinCount;
+      const bufferLength = analyser.frequencyBinCount; // 512 bins (~43 Hz per bin)
       const dataArray = new Uint8Array(bufferLength);
 
-      function render() {
-        if (!isSampling) return;
-        animId = requestAnimationFrame(render);
+      function frame() {
+        if (!isLive) return;
+        animId = requestAnimationFrame(frame);
+
         analyser.getByteFrequencyData(dataArray);
 
-        ctx.fillStyle = '#05070a';
+        // 1. Draw live oscilloscope
+        ctx.fillStyle = '#040609';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        const barWidth = (canvas.width / 64);
+        const barW = canvas.width / 64;
         let x = 0;
-
         for (let i = 0; i < 64; i++) {
           const val = dataArray[i * 4];
-          const barH = (val / 255) * canvas.height;
+          const h = (val / 255) * canvas.height;
           ctx.fillStyle = val > 160 ? '#ef4444' : (val > 80 ? '#38bdf8' : '#10b981');
-          ctx.fillRect(x, canvas.height - barH, barWidth - 1, barH);
-          x += barWidth;
+          ctx.fillRect(x, canvas.height - h, barW - 1, h);
+          x += barW;
         }
+
+        // 2. Measure energy in distinct acoustic frequency bands:
+        // Bin width ≈ 43 Hz (at 44.1 kHz sample rate)
+        // Sub-bass / Engine Rumble: Bins 1 - 2 (< 90 Hz)
+        // Human Vocal Formant: Bins 2 - 7 (90 Hz - 300 Hz)
+        // Whistle / Melodic Tone: Bins 20 - 60 (850 Hz - 2600 Hz)
+        // Bird Chirps / Avian Whistle: Bins 65 - 120 (2800 Hz - 5200 Hz)
+        // Wind / HVAC broadband: Distributed high noise floor
+
+        let rawEngine = getBandEnergy(dataArray, 1, 2);
+        let rawVoice = getBandEnergy(dataArray, 2, 7);
+        let rawWhistle = getBandEnergy(dataArray, 20, 60);
+        let rawBirds = getBandEnergy(dataArray, 65, 120);
+        let rawWind = getBandEnergy(dataArray, 10, 40);
+
+        // Total acoustic energy
+        let totalEnergy = (rawEngine + rawVoice + rawWhistle + rawBirds + rawWind) / 5;
+
+        // Exponential smoothing (alpha = 0.25) so it reacts immediately without flickering
+        const a = 0.25;
+        smooth.engine = smooth.engine * (1 - a) + rawEngine * a;
+        smooth.voice = smooth.voice * (1 - a) + rawVoice * a;
+        smooth.whistle = smooth.whistle * (1 - a) + rawWhistle * a;
+        smooth.birds = smooth.birds * (1 - a) + rawBirds * a;
+        smooth.wind = smooth.wind * (1 - a) + rawWind * a;
+
+        // Convert to percentages (0 - 100%)
+        let pEngine = Math.min(Math.round((smooth.engine / 160) * 100), 100);
+        let pVoice = Math.min(Math.round((smooth.voice / 150) * 100), 100);
+        let pWhistle = Math.min(Math.round((smooth.whistle / 140) * 100), 100);
+        let pBirds = Math.min(Math.round((smooth.birds / 120) * 100), 100);
+        let pWind = Math.min(Math.round((smooth.wind / 130) * 100), 100);
+
+        // Noise floor suppression: if room is quiet, zero out
+        if (totalEnergy < 25) {
+          pEngine = pVoice = pWhistle = pBirds = pWind = 0;
+        }
+
+        // Update real-time bars
+        updateBar('barVoice', 'pctVoice', pVoice);
+        updateBar('barWhistle', 'pctWhistle', pWhistle);
+        updateBar('barBirds', 'pctBirds', pBirds);
+        updateBar('barEngine', 'pctEngine', pEngine);
+        updateBar('barWind', 'pctWind', pWind);
+
+        // Determine dominant sound right now
+        updateDominantRadar(pVoice, pWhistle, pBirds, pEngine, pWind, totalEnergy);
       }
-      render();
+
+      frame();
     }
 
-    // GPS REAL SPEED WATCHER
+    function getBandEnergy(data, startBin, endBin) {
+      let sum = 0;
+      for (let i = startBin; i <= endBin; i++) {
+        sum += data[i] || 0;
+      }
+      return sum / (endBin - startBin + 1);
+    }
+
+    function updateBar(barId, pctId, val) {
+      document.getElementById(barId).style.width = val + '%';
+      document.getElementById(pctId).textContent = val + '%';
+    }
+
+    function updateDominantRadar(voice, whistle, birds, engine, wind, total) {
+      const icon = document.getElementById('mainIcon');
+      const label = document.getElementById('mainLabel');
+      const desc = document.getElementById('mainDesc');
+
+      if (total < 25) {
+        icon.textContent = '🔇';
+        label.textContent = 'Quiet Ambient / Low Noise';
+        desc.textContent = 'Listening continuously... Make a sound, talk, whistle, or start your car.';
+        return;
+      }
+
+      // Priority determination based on highest confidence peak
+      if (birds > 45 && birds >= whistle && birds >= voice) {
+        icon.textContent = '🐦';
+        label.textContent = `Bird Chirping Detected (${birds}%)`;
+        desc.textContent = 'High-frequency avian chirps or nature whistling identified in the background.';
+      } else if (whistle > 45 && whistle >= voice) {
+        icon.textContent = '🎵';
+        label.textContent = `Human Whistling / Melodic Tone (${whistle}%)`;
+        desc.textContent = 'Pure sinusoidal acoustic tone identified. Resembles human whistling or music.';
+      } else if (voice > 40) {
+        icon.textContent = '👤';
+        label.textContent = `Human Voice / Conversation (${voice}%)`;
+        desc.textContent = 'Human vocal cord frequencies & speech formants detected.';
+      } else if (engine > 40) {
+        icon.textContent = '🚗';
+        label.textContent = `Engine Combustion Rumble (${engine}%)`;
+        desc.textContent = 'Low-frequency mechanical 4-stroke combustion strokes verified.';
+      } else if (wind > 35) {
+        icon.textContent = '💨';
+        label.textContent = `Fan / Wind Airflow (${wind}%)`;
+        desc.textContent = 'Broadband airflow noise detected from ambient wind or HVAC vents.';
+      }
+    }
+
+    // GPS LIVE WATCHER
     if ('geolocation' in navigator) {
       navigator.geolocation.watchPosition(
         (pos) => {
@@ -391,7 +396,7 @@
           document.getElementById('gpsVal').innerHTML = `${spd.toFixed(1)} <span style="font-size:13px; color:var(--text-muted);">km/h</span>`;
 
           const dot = document.getElementById('gpsDot');
-          const pill = document.getElementById('motionPillText');
+          const pill = document.getElementById('motionStatusPill');
           const hdr = document.getElementById('motionHdr');
           const desc = document.getElementById('motionDesc');
 
@@ -406,7 +411,7 @@
             pill.textContent = `PARKED (${spd.toFixed(0)} km/h)`;
             pill.style.color = '#38bdf8';
             hdr.textContent = 'Vehicle is Parked';
-            desc.textContent = 'Speed is at 0 km/h. Road guard will engage once car moves.';
+            desc.textContent = 'Speed is at 0 km/h. Road guard engages automatically when moving.';
           }
         },
         () => {},
@@ -414,7 +419,7 @@
       );
     }
 
-    // Accelerometer variance for shock detection
+    // Accelerometer shock variance
     window.addEventListener('devicemotion', (e) => {
       const acc = e.accelerationIncludingGravity || e.acceleration;
       if (!acc || acc.x === null) return;
