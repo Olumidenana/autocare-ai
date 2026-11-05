@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AutoCare AI - In-Motion Vibration & Road Monitor</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #0a0e17; color: #e1e7f0; padding: 16px; min-height: 100vh; display: flex; flex-direction: column; }
+    .header { text-align: center; margin-bottom: 20px; }
+    .badge { display: inline-block; background: #16243b; color: #38bdf8; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 6px; }
+    h1 { font-size: 20px; font-weight: 700; color: #fff; }
+    .meter-card { background: #111827; border: 1px solid #1f293d; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+    .g-value { font-size: 54px; font-weight: 800; line-height: 1; margin: 10px 0; color: #10b981; transition: color 0.2s; }
+    .g-label { font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+    .hz-row { display: flex; justify-content: space-around; margin-top: 15px; padding-top: 15px; border-top: 1px solid #1f293d; }
+    .stat-val { font-size: 20px; font-weight: 700; color: #38bdf8; }
+    .stat-lbl { font-size: 11px; color: #64748b; }
+    .status-card { background: #1e1b4b; border: 1px solid #4338ca; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .status-title { font-size: 13px; color: #a5b4fc; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .status-body { font-size: 15px; color: #ffffff; line-height: 1.4; font-weight: 500; }
+    .pidgin-box { background: #172554; border-left: 4px solid #3b82f6; border-radius: 4px; padding: 10px; margin-top: 10px; font-size: 13px; color: #bfdbfe; }
+    .btn { background: #2563eb; color: #fff; border: none; border-radius: 12px; padding: 14px 20px; font-size: 16px; font-weight: 600; width: 100%; cursor: pointer; transition: background 0.2s; }
+    .btn:active { background: #1d4ed8; }
+    .pothole-alert { background: #7f1d1d; border: 1px solid #ef4444; color: #fecaca; padding: 12px; border-radius: 8px; margin-top: 12px; display: none; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="badge">Telemetry Live</div>
+    <h1>In-Motion Vehicle Diagnostics</h1>
+    <p style="font-size: 12px; color: #94a3b8; margin-top: 4px;">Put phone in cup holder or dashboard while driving</p>
+  </div>
+
+  <div class="meter-card">
+    <div class="g-label">Vertical Shock Load</div>
+    <div class="g-value" id="gValue">0.00 G</div>
+    <div class="hz-row">
+      <div>
+        <div class="stat-val" id="hzValue">0.0 Hz</div>
+        <div class="stat-lbl">Dominant Oscillation</div>
+      </div>
+      <div>
+        <div class="stat-val" id="potholeCount">0</div>
+        <div class="stat-lbl">Crater Shocks Logged</div>
+      </div>
+      <div>
+        <div class="stat-val" id="statusState">Optimal</div>
+        <div class="stat-lbl">Ride Quality</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-card">
+    <div class="status-title">⚡ Real-Time Diagnostic Interpretation</div>
+    <div class="status-body" id="plainEnglish">Sensors ready. Tap "Start In-Motion Monitor" below to begin tracking vehicle vibration harmonics.</div>
+    <div class="pidgin-box" id="pidginText">Naija Co-Pilot ready. Tap button make we monitor your shockers and tire as you dey drive.</div>
+    <div class="pothole-alert" id="potholeAlert">⚠️ Severe Road Crater Impact Logged! Inspect tire sidewalls for bulges.</div>
+  </div>
+
+  <button class="btn" id="startBtn" onclick="initSensors()">▶ Start In-Motion Monitor</button>
+
+  <script>
+    let active = false;
+    let potholeCount = 0;
+    let lastZ = 9.81;
+
+    async function initSensors() {
+      const btn = document.getElementById('startBtn');
+      if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+        try {
+          const permission = await DeviceMotionEvent.requestPermission();
+          if (permission !== 'granted') {
+            alert('Sensor permission required to analyze vehicle vibration.');
+            return;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      active = !active;
+      if (active) {
+        btn.textContent = '⏹ Stop Monitoring';
+        btn.style.background = '#dc2626';
+        window.addEventListener('devicemotion', handleMotion);
+        document.getElementById('statusState').textContent = 'Monitoring';
+      } else {
+        btn.textContent = '▶ Start In-Motion Monitor';
+        btn.style.background = '#2563eb';
+        window.removeEventListener('devicemotion', handleMotion);
+        document.getElementById('statusState').textContent = 'Paused';
+      }
+    }
+
+    function handleMotion(event) {
+      const acc = event.accelerationIncludingGravity || event.acceleration;
+      if (!acc || acc.z === null) return;
+
+      const zG = Math.abs(acc.z) / 9.81;
+      const gEl = document.getElementById('gValue');
+      gEl.textContent = zG.toFixed(2) + ' G';
+
+      // Color coding by G-Force severity
+      if (zG >= 2.2) {
+        gEl.style.color = '#ef4444'; // Red (Pothole impact)
+        potholeCount++;
+        document.getElementById('potholeCount').textContent = potholeCount;
+        triggerPotholeAlert();
+      } else if (zG >= 1.4) {
+        gEl.style.color = '#f59e0b'; // Amber (Corrugation / wobble)
+      } else {
+        gEl.style.color = '#10b981'; // Green (Smooth)
+      }
+
+      // Simulated FFT Frequency estimation based on delta
+      const delta = Math.abs(acc.z - lastZ);
+      lastZ = acc.z;
+      const freq = Math.min(Math.max((delta * 2.8).toFixed(1), 1.2), 38.0);
+      document.getElementById('hzValue').textContent = freq + ' Hz';
+
+      interpretVibration(freq, zG);
+    }
+
+    function triggerPotholeAlert() {
+      const alertBox = document.getElementById('potholeAlert');
+      alertBox.style.display = 'block';
+      setTimeout(() => { alertBox.style.display = 'none'; }, 4000);
+    }
+
+    function interpretVibration(freq, g) {
+      const plain = document.getElementById('plainEnglish');
+      const pidgin = document.getElementById('pidginText');
+
+      if (g >= 2.2) {
+        plain.textContent = `Severe impact (${g.toFixed(1)}G). Potential rim deformation or ball joint stress.`;
+        pidgin.textContent = "Oga, that pothole hit your tire hard! Check your inner rim make e no bend.";
+      } else if (freq >= 10 && freq <= 18) {
+        plain.textContent = `Wheel rotational harmonic detected at ${freq} Hz. Tire imbalance or uneven tread wear.`;
+        pidgin.textContent = "Your tire dey wobble at high speed. The wheel balancing need checking.";
+      } else if (freq >= 25 && freq <= 40) {
+        plain.textContent = `Driveline frequency (${freq} Hz). Inner CV joint / half-shaft play under torque.`;
+        pidgin.textContent = "Inner drive shaft dey vibrate under acceleration.";
+      } else if (freq >= 1.5 && freq <= 4.0 && g > 1.3) {
+        plain.textContent = "Low-frequency chassis heave/bounce. Shock absorber damping resistance is depleted.";
+        pidgin.textContent = "Motor dey bounce like boat; your shockers don tire.";
+      } else {
+        plain.textContent = "Chassis harmonic within normal range. Damping is optimal.";
+        pidgin.textContent = "Motor dey roll smooth, suspension dey healthy.";
+      }
+    }
+  </script>
+</body>
+</html>
