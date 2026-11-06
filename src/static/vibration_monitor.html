@@ -3,538 +3,350 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>AutoContentment | Real-Time Engine Acoustic Diagnostic Suite</title>
+  <title>AutoContentment | Smart Voice Companion & Mechanic Scam Shield</title>
   
   <style>
     :root {
-      --bg: #06080d;
-      --surface: #0e121a;
-      --border: #1f2738;
+      --bg: #07090e;
+      --card: #0f131c;
+      --card-elevated: #161c28;
+      --border: #1e2638;
       --text: #ffffff;
-      --text-muted: #8b949e;
+      --muted: #8b949e;
       --accent: #2563eb;
       --green: #10b981;
-      --amber: #f59e0b;
       --red: #ef4444;
-      --cyan: #38bdf8;
+      --amber: #f59e0b;
       --mono: "SF Mono", "Consolas", monospace;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; min-height: 100vh; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; min-height: 100vh; padding-bottom: 70px; }
 
-    /* Top Bar */
-    .top-nav { background: rgba(10, 13, 20, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 14px 22px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-    .brand-logo { font-size: 15px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
-    .telemetry-pill { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; background: #151d2a; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--border); color: var(--cyan); font-family: var(--mono); }
-    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); }
-    .status-dot.active { background: var(--green); box-shadow: 0 0 10px var(--green); }
+    /* Top Brand Bar */
+    .top-bar { background: rgba(7, 9, 14, 0.95); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .brand-title { font-size: 16px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .shield-badge { font-family: var(--mono); font-size: 11px; font-weight: 700; background: #064e3b; color: #34d399; padding: 4px 12px; border-radius: 999px; display: flex; align-items: center; gap: 6px; }
+    .dot-pulse { width: 7px; height: 7px; border-radius: 50%; background: #34d399; box-shadow: 0 0 10px #34d399; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    .app-container { max-width: 1200px; margin: 0 auto; padding: 20px 16px; }
-    .cockpit-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
-    @media (min-width: 900px) {
-      .cockpit-grid { grid-template-columns: 1.15fr 0.85fr; gap: 24px; }
-    }
+    .main-wrap { max-width: 900px; margin: 0 auto; padding: 24px 18px; }
 
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px; position: relative; }
-    .card-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    .card-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
-    .badge { font-family: var(--mono); font-size: 10px; background: #162030; color: var(--cyan); padding: 3px 8px; border-radius: 4px; }
+    /* Hero Headline */
+    .hero { text-align: center; margin-bottom: 24px; }
+    .hero-h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
+    .hero-h1 span { color: #60a5fa; }
+    .hero-p { font-size: 14px; color: var(--muted); max-width: 540px; margin: 0 auto; line-height: 1.5; }
 
-    /* Live Primary Radar Box */
-    .radar-display { background: #070a10; border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin: 12px 0; text-align: center; }
-    .radar-main-icon { font-size: 38px; margin-bottom: 6px; }
-    .radar-main-label { font-size: 19px; font-weight: 800; color: #fff; margin-bottom: 4px; }
-    .radar-sub-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; max-width: 500px; margin: 0 auto; }
+    /* Car Selector Banner */
+    .car-banner { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .car-info { display: flex; flex-direction: column; }
+    .car-name { font-size: 17px; font-weight: 800; color: #fff; }
+    .car-specs { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    select { background: #161d2a; color: #fff; border: 1px solid #2d3748; border-radius: 8px; padding: 8px 12px; font-size: 12px; }
 
-    /* Engine Fault Diagnosis Card (What is Wrong With The Engine) */
-    .fault-diagnostic-card { background: #080d16; border: 1px solid #1a283e; border-radius: 14px; padding: 18px; margin: 16px 0; }
-    .fault-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .fault-title { font-size: 15px; font-weight: 800; color: var(--green); display: flex; align-items: center; gap: 6px; }
-    .fault-score { font-family: var(--mono); font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: #16263d; color: #60a5fa; }
-    .fault-body { font-size: 13px; color: #cbd5e1; line-height: 1.5; margin-bottom: 10px; }
-    .fault-action { font-size: 12px; color: #93c5fd; background: #0f1c30; border-left: 3px solid #2563eb; padding: 10px; border-radius: 0 6px 6px 0; }
+    /* VOICE NOTE RECORDER HERO */
+    .recorder-card { background: linear-gradient(180deg, #101624 0%, #0c1018 100%); border: 1px solid #23304a; border-radius: 20px; padding: 32px 20px; text-align: center; margin-bottom: 24px; position: relative; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
+    .recorder-card::before { content: ""; position: absolute; top: -80px; left: 50%; transform: translateX(-50%); width: 220px; height: 220px; background: radial-gradient(circle, rgba(37,99,235,0.2) 0%, transparent 70%); z-index: 0; }
+    
+    .mic-btn-wrap { position: relative; width: 100px; height: 100px; margin: 0 auto 18px; z-index: 1; }
+    .mic-btn { width: 100%; height: 100%; border-radius: 50%; background: #2563eb; color: #fff; border: none; font-size: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 30px rgba(37,99,235,0.4); }
+    .mic-btn:active { transform: scale(0.94); }
+    .mic-btn.recording { background: var(--red); box-shadow: 0 0 40px rgba(239,68,68,0.7); animation: pulseRing 1.5s infinite; }
+    @keyframes pulseRing { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
 
-    /* Sound Channels Meter */
-    .sound-bars-stack { display: flex; flex-direction: column; gap: 9px; margin: 16px 0; }
-    .sound-row { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
-    .sound-name { width: 155px; font-weight: 600; display: flex; align-items: center; gap: 6px; color: #cbd5e1; font-size: 12px; }
-    .sound-track { flex: 1; height: 8px; background: #151d2a; border-radius: 4px; overflow: hidden; margin: 0 10px; }
-    .sound-fill { height: 100%; width: 0%; border-radius: 4px; transition: width 0.12s ease-out; }
-    .sound-pct { width: 45px; text-align: right; font-family: var(--mono); color: var(--text-muted); font-size: 11px; }
+    .rec-status { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 4px; z-index: 1; position: relative; }
+    .rec-sub { font-size: 13px; color: var(--muted); z-index: 1; position: relative; }
+    .timer-text { font-family: var(--mono); font-size: 13px; color: #ef4444; font-weight: 700; margin-top: 6px; display: none; }
 
-    /* Live Oscilloscope */
-    #liveCanvas { width: 100%; height: 95px; background: #040609; border: 1px solid #161e2e; border-radius: 10px; display: block; margin: 12px 0; }
+    /* Quick Test Pill Buttons */
+    .sample-pill-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 20px; z-index: 1; position: relative; }
+    .sample-pill { background: #182233; color: #93c5fd; border: 1px solid #23304a; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer; transition: all 0.15s; font-weight: 600; }
+    .sample-pill:active { background: #2563eb; color: #fff; }
 
-    /* Controls */
-    .btn-engage { background: var(--accent); color: #fff; border: none; border-radius: 12px; padding: 15px; font-size: 14px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s; }
-    .btn-engage:active { transform: scale(0.98); }
-    .btn-engage.live { background: var(--red); animation: pulseRed 2s infinite; }
-    @keyframes pulseRed { 0%, 100% { box-shadow: 0 0 10px rgba(239,68,68,0.3); } 50% { box-shadow: 0 0 20px rgba(239,68,68,0.6); } }
+    /* SCAM SHIELD REPORT (RESULTS DISPLAY) */
+    .report-card { background: #0c111a; border: 1px solid var(--border); border-radius: 18px; padding: 22px; margin-bottom: 24px; display: none; animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Motion Cards */
-    .speed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
-    .metric-cell { background: #080c14; border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
-    .cell-lbl { font-size: 11px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
-    .cell-val { font-family: var(--mono); font-size: 32px; font-weight: 800; line-height: 1.1; margin-top: 6px; }
+    .transcription-box { background: #131824; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; font-size: 13px; color: #cbd5e1; border-left: 3px solid #60a5fa; }
+    .money-saved-banner { background: linear-gradient(135deg, #064e3b 0%, #022c22 100%); border: 1px solid #059669; border-radius: 14px; padding: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .saved-lbl { font-size: 11px; text-transform: uppercase; font-weight: 700; color: #6ee7b7; letter-spacing: 1px; }
+    .saved-val { font-size: 26px; font-weight: 900; color: #fff; font-family: var(--mono); margin-top: 2px; }
 
-    /* Dealer Store */
-    .dealer-card { background: linear-gradient(135deg, #0d1726 0%, #080e18 100%); border: 1px solid #1e3a8a; border-radius: 14px; padding: 18px; display: flex; justify-content: space-between; align-items: center; }
-    .order-btn { background: #2563eb; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+    .triage-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 18px; }
+    @media (min-width: 600px) { .triage-grid { grid-template-columns: 1fr 1fr; } }
+    .triage-box { background: #111622; border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .triage-lbl { font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+
+    /* Action Buttons */
+    .action-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-order { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 14px 20px; font-size: 13px; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; flex: 1; }
+    .btn-share { background: #1a2233; color: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; font-size: 13px; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
   </style>
 </head>
 <body>
 
   <!-- Top Navigation -->
-  <header class="top-nav">
-    <div class="brand-logo">AUTOCONTENTMENT</div>
-    <div class="telemetry-pill">
-      <div class="status-dot" id="gpsDot"></div>
-      <span id="motionStatusPill">PARKED (0.0 km/h)</span>
+  <header class="top-bar">
+    <div class="brand-title">
+      AUTOCONTENTMENT
+    </div>
+    <div class="shield-badge">
+      <div class="dot-pulse"></div>
+      SCAM SHIELD ACTIVE
     </div>
   </header>
 
-  <div class="app-container">
+  <main class="main-wrap">
 
-    <div class="cockpit-grid">
+    <!-- Hero -->
+    <div class="hero">
+      <h1 class="hero-h1">Car First-Aid & <span>Mechanic Scam Shield</span></h1>
+      <p class="hero-p">
+        Record a voice note describing your car's issue in English, Pidgin, Yoruba, or Igbo. We diagnose the real fault and stop roadside mechanics from scamming you.
+      </p>
+    </div>
 
-      <!-- LEFT: CONTINUOUS ACOUSTIC RADAR & ENGINE FAULT DETECTOR -->
-      <div class="card">
-        <div class="card-hdr">
-          <span class="card-title">Live Acoustic Radar & Engine Fault Classifier</span>
-          <span class="badge" id="radarBadge">RADAR STANDBY</span>
-        </div>
+    <!-- Car Selector -->
+    <div class="car-banner">
+      <div class="car-info">
+        <div class="car-name" id="selectedCarName">2021 Mercedes-Benz C300 (W205)</div>
+        <div class="car-specs">Engine: M274 2.0L Turbo • AutoContentment Verified</div>
+      </div>
+      <div>
+        <select id="carSelect" onchange="changeCarModel()">
+          <option value="Mercedes-Benz C300">Mercedes-Benz C300 (M274)</option>
+          <option value="Lexus ES350">Lexus ES350 (2GR-FE V6)</option>
+          <option value="Lexus RX350">Lexus RX350 (2GR-FE V6)</option>
+          <option value="Toyota Camry">Toyota Camry (2.5L / 3.5L)</option>
+          <option value="Toyota Land Cruiser Prado">Toyota Prado (1GR-FE V6)</option>
+          <option value="Honda Accord">Honda Accord (K24 i-VTEC)</option>
+        </select>
+      </div>
+    </div>
 
-        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.4;">
-          Filters out desk/mouse friction noise, isolates true acoustic signals, and evaluates engine health (lifter tick, rod knock, belt slip, or healthy purr).
-        </p>
+    <!-- VOICE NOTE RECORDER HERO CARD -->
+    <div class="recorder-card">
+      <div class="mic-btn-wrap">
+        <button class="mic-btn" id="recordBtn" onclick="toggleVoiceRecording()">🎙️</button>
+      </div>
+      <div class="rec-status" id="recStatusText">Tap Microphone to Speak Issue</div>
+      <div class="rec-sub" id="recSubText">Speak freely in English, Pidgin, Yoruba, or Igbo</div>
+      <div class="timer-text" id="recTimer">🔴 Recording: 00:00</div>
 
-        <!-- Live Radar Primary Sound Source -->
-        <div class="radar-display">
-          <div class="radar-main-icon" id="mainIcon">🎧</div>
-          <div class="radar-main-label" id="mainLabel">Acoustic Radar Standby</div>
-          <div class="radar-sub-desc" id="mainDesc">Tap "Engage Live Acoustic Radar" to begin listening continuously.</div>
-        </div>
+      <!-- Quick Test Sample Scenarios -->
+      <div class="sample-pill-row">
+        <span style="font-size:11px; color:var(--muted); width:100%; margin-bottom:4px;">Or test common Nigerian mechanic scams:</span>
+        <button class="sample-pill" onclick="simulateVoiceScenario('gear')">⚙️ Gearbox Jerking (₦850k Scam)</button>
+        <button class="sample-pill" onclick="simulateVoiceScenario('suspension')">🚗 Highway Vibration (₦400k Scam)</button>
+        <button class="sample-pill" onclick="simulateVoiceScenario('rattle')">🔊 Morning Engine Rattle (₦1.2M Scam)</button>
+      </div>
+    </div>
 
-        <!-- ENGINE MECHANICAL FAULT DIAGNOSIS (WHAT'S WRONG WITH THE ENGINE) -->
-        <div class="fault-diagnostic-card">
-          <div class="fault-hdr">
-            <span class="fault-title" id="faultTitle">✅ Engine Mechanical Status: Nominal</span>
-            <span class="fault-score" id="faultScore">HEALTH: 96%</span>
-          </div>
-          <div class="fault-body" id="faultDesc">
-            Combustion rhythm is balanced. No high-frequency valve lifter clicking, bottom-end rod knocking, or belt tensioner screech detected.
-          </div>
-          <div class="fault-action" id="faultAction">
-            💡 <b>Action</b>: Routine maintenance schedule is optimal. Check oil dipstick level in 2,500 km.
-          </div>
-        </div>
-
-        <!-- Live Oscilloscope -->
-        <canvas id="liveCanvas" height="95"></canvas>
-
-        <!-- Multi-Sound Real-Time Probabilities -->
-        <div class="sound-bars-stack">
-          <!-- 1. Genuine Engine Combustion -->
-          <div class="sound-row">
-            <span class="sound-name">🚗 Engine Combustion</span>
-            <div class="sound-track"><div class="sound-fill" id="barEngine" style="background:#10b981;"></div></div>
-            <span class="sound-pct" id="pctEngine">0%</span>
-          </div>
-
-          <!-- 2. Human Voice / Speech (Harmonic Periodic Pitch) -->
-          <div class="sound-row">
-            <span class="sound-name">👤 Human Voice</span>
-            <div class="sound-track"><div class="sound-fill" id="barVoice" style="background:#eab308;"></div></div>
-            <span class="sound-pct" id="pctVoice">0%</span>
-          </div>
-
-          <!-- 3. Whistling / Musical Tone -->
-          <div class="sound-row">
-            <span class="sound-name">🎵 Whistling</span>
-            <div class="sound-track"><div class="sound-fill" id="barWhistle" style="background:#38bdf8;"></div></div>
-            <span class="sound-pct" id="pctWhistle">0%</span>
-          </div>
-
-          <!-- 4. Bird Chirps / Avian High Pitch -->
-          <div class="sound-row">
-            <span class="sound-name">🐦 Bird Chirps</span>
-            <div class="sound-track"><div class="sound-fill" id="barBirds" style="background:#a855f7;"></div></div>
-            <span class="sound-pct" id="pctBirds">0%</span>
-          </div>
-
-          <!-- 5. Friction / Mouse / Desk Handling -->
-          <div class="sound-row">
-            <span class="sound-name">🖱️ Desk / Friction Noise</span>
-            <div class="sound-track"><div class="sound-fill" id="barFriction" style="background:#64748b;"></div></div>
-            <span class="sound-pct" id="pctFriction">0%</span>
-          </div>
-        </div>
-
-        <button class="btn-engage" id="radarBtn" onclick="toggleContinuousRadar()">
-          ▶ Engage Live Acoustic Radar
-        </button>
+    <!-- DIAGNOSTIC & SCAM SHIELD REPORT -->
+    <div class="report-card" id="reportCard">
+      
+      <!-- Driver's Voice Transcription -->
+      <div class="transcription-box">
+        <span style="font-size:11px; text-transform:uppercase; color:#60a5fa; font-weight:700;">🎙️ Your Voice Note:</span>
+        <div style="margin-top:4px; font-style:italic;" id="transcriptionText">"..."</div>
       </div>
 
-      <!-- RIGHT: IN-MOTION TELEMETRY & GENUINE STORE -->
-      <div>
-        <!-- In-Motion Speed & Road Roughness -->
-        <div class="card" style="margin-bottom: 20px;">
-          <div class="card-hdr">
-            <span class="card-title">In-Motion Velocity & Pothole Guard</span>
-            <span class="badge">GPS ACTIVE</span>
-          </div>
+      <!-- Money Saved Hero Banner -->
+      <div class="money-saved-banner">
+        <div>
+          <div class="saved-lbl">Estimated Money Saved From Scam</div>
+          <div class="saved-val" id="savedAmount">₦790,000</div>
+        </div>
+        <div style="font-size:36px;">🛡️</div>
+      </div>
 
-          <div class="speed-grid">
-            <div class="metric-cell">
-              <div class="cell-lbl">GPS Velocity</div>
-              <div class="cell-val" id="gpsVal" style="color: var(--cyan);">0.0 <span style="font-size:13px; color:var(--text-muted);">km/h</span></div>
-            </div>
-            <div class="metric-cell">
-              <div class="cell-lbl">Road Shock Load</div>
-              <div class="cell-val" id="shockVal" style="color: var(--green);">0.08 <span style="font-size:13px; color:var(--text-muted);">G</span></div>
-            </div>
-          </div>
-
-          <div style="font-size: 13px; color: #cbd5e1; line-height: 1.5; background: #080c14; border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
-            <div style="font-weight: 700; color: #fff; margin-bottom: 4px;" id="motionHdr">Vehicle is Parked</div>
-            <div id="motionDesc" style="color: var(--text-muted); font-size: 12px;">
-              Place phone in car mount. As you drive, GPS and accelerometer detect road corrugation and crater impacts automatically.
-            </div>
-          </div>
+      <!-- Detailed Breakdown Grid -->
+      <div class="triage-grid">
+        <!-- True Mechanical Root Cause -->
+        <div class="triage-box" style="border-left: 3px solid var(--green);">
+          <div class="triage-lbl" style="color:var(--green);">🔍 Real Engineering Root Cause</div>
+          <div style="font-size:14px; font-weight:700; color:#fff; margin-bottom:4px;" id="rootCauseTitle">Shift Solenoid Sticking</div>
+          <div style="font-size:13px; color:var(--muted); line-height:1.4;" id="rootCauseDesc">...</div>
+          <div style="margin-top:10px; font-size:12px; font-weight:700; color:#34d399;" id="realCostEstimate">Honest Repair Cost: ~₦45,000</div>
         </div>
 
-        <!-- AutoContentment Genuine Oil Store -->
-        <div class="dealer-card">
-          <div>
-            <div style="font-size: 10px; font-weight: 800; color: #60a5fa; text-transform: uppercase;">AutoContentment Verified</div>
-            <div style="font-size: 14px; font-weight: 800; color: #fff; margin-top: 2px;">Genuine OEM 0W-20 Synthetic Oil</div>
-            <div style="font-size: 11px; color: var(--text-muted);">100% Original • Protects timing chain (₦45,000)</div>
-          </div>
-          <a href="https://wa.me/?text=I%20want%20to%20order%20genuine%200W-20%20oil" target="_blank" class="order-btn">Order Direct</a>
+        <!-- Roadside Mechanic Scam Exposed -->
+        <div class="triage-box" style="border-left: 3px solid var(--red);">
+          <div class="triage-lbl" style="color:var(--red);">🛑 Quack Mechanic Scam Exposed</div>
+          <div style="font-size:13px; color:#fca5a5; line-height:1.4;" id="scamAlertText">...</div>
+          <div style="margin-top:10px; font-size:12px; font-weight:700; color:#ef4444;" id="scamQuotedCost">Mechanic False Quote: ~₦850,000</div>
         </div>
+      </div>
+
+      <!-- Honest Solution & Parts -->
+      <div style="background:#080c14; border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:18px;">
+        <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:#38bdf8; margin-bottom:4px;">💡 The Honest Mechanical Fix</div>
+        <div style="font-size:13px; color:#cbd5e1; line-height:1.5;" id="trueFixText">...</div>
+        <div style="font-size:12px; color:#60a5fa; margin-top:8px;">📦 <b>Recommended Genuine Part</b>: <span id="recommendedPartText">OEM Fluid</span></div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-row">
+        <a href="https://wa.me/?text=Hello%20AutoContentment,%20I%20have%20an%20issue%20with%20my%20car" target="_blank" class="btn-order" id="orderBtn">
+          🛒 Order Genuine Parts from AutoContentment Store
+        </a>
+        <button class="btn-share" onclick="shareReport()">
+          📤 Share Report
+        </button>
       </div>
 
     </div>
 
-  </div>
+  </main>
 
   <script>
-    let audioCtx = null;
-    let analyser = null;
-    let micStream = null;
-    let isLive = false;
-    let animId = null;
+    let isRecording = false;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recordTimer = null;
+    let recordSeconds = 0;
 
-    // Smoothed acoustic energies
-    let smooth = { engine: 0, voice: 0, whistle: 0, birds: 0, friction: 0 };
+    function changeCarModel() {
+      const name = document.getElementById('carSelect').value;
+      document.getElementById('selectedCarName').textContent = name;
+    }
 
-    async function toggleContinuousRadar() {
-      const btn = document.getElementById('radarBtn');
-      const badge = document.getElementById('radarBadge');
+    // REAL VOICE NOTE RECORDING (HTML5 MediaRecorder)
+    async function toggleVoiceRecording() {
+      const btn = document.getElementById('recordBtn');
+      const status = document.getElementById('recStatusText');
+      const sub = document.getElementById('recSubText');
+      const timer = document.getElementById('recTimer');
 
-      if (!isLive) {
+      if (!isRecording) {
         try {
-          micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          analyser = audioCtx.createAnalyser();
-          analyser.fftSize = 1024; // 512 frequency bins (~43 Hz per bin)
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          audioChunks = [];
 
-          const source = audioCtx.createMediaStreamSource(micStream);
-          source.connect(analyser);
+          mediaRecorder.ondataavailable = (e) => {
+            if (e.data.size > 0) audioChunks.push(e.data);
+          };
 
-          isLive = true;
-          btn.textContent = '⏹ Stop Acoustic Radar';
-          btn.classList.add('live');
-          badge.textContent = 'RADAR LIVE (LISTENING)';
-          badge.style.color = '#10b981';
+          mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            await submitVoiceNote(audioBlob);
+          };
 
-          runContinuousRadarLoop();
+          mediaRecorder.start();
+          isRecording = true;
+          btn.classList.add('recording');
+          btn.textContent = '⏹';
+          status.textContent = 'Listening... Speak Your Issue Now';
+          sub.textContent = 'Tap square button when done';
+          timer.style.display = 'block';
+
+          recordSeconds = 0;
+          recordTimer = setInterval(() => {
+            recordSeconds++;
+            const mins = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
+            const secs = String(recordSeconds % 60).padStart(2, '0');
+            timer.textContent = `🔴 Recording: ${mins}:${secs}`;
+          }, 1000);
+
         } catch (err) {
-          alert('Microphone permission required for acoustic radar: ' + err.message);
+          alert('Microphone access required to record voice note: ' + err.message);
         }
       } else {
-        stopContinuousRadar();
-      }
-    }
+        // Stop recording
+        isRecording = false;
+        btn.classList.remove('recording');
+        btn.textContent = '🎙️';
+        status.textContent = 'Processing Voice Note...';
+        sub.textContent = 'Analyzing mechanical symptoms & running Scam Shield...';
+        clearInterval(recordTimer);
+        timer.style.display = 'none';
 
-    function stopContinuousRadar() {
-      isLive = false;
-      const btn = document.getElementById('radarBtn');
-      const badge = document.getElementById('radarBadge');
-      btn.textContent = '▶ Engage Live Acoustic Radar';
-      btn.classList.remove('live');
-      badge.textContent = 'RADAR STANDBY';
-      badge.style.color = 'var(--cyan)';
-
-      if (micStream) {
-        micStream.getTracks().forEach(t => t.stop());
-        micStream = null;
-      }
-      if (animId) cancelAnimationFrame(animId);
-
-      updateBar('barEngine', 'pctEngine', 0);
-      updateBar('barVoice', 'pctVoice', 0);
-      updateBar('barWhistle', 'pctWhistle', 0);
-      updateBar('barBirds', 'pctBirds', 0);
-      updateBar('barFriction', 'pctFriction', 0);
-
-      document.getElementById('mainIcon').textContent = '🎧';
-      document.getElementById('mainLabel').textContent = 'Acoustic Radar Standby';
-      document.getElementById('mainDesc').textContent = 'Tap "Engage Live Acoustic Radar" to resume.';
-    }
-
-    function runContinuousRadarLoop() {
-      const canvas = document.getElementById('liveCanvas');
-      const ctx = canvas.getContext('2d');
-      const bufferLength = analyser.frequencyBinCount; // 512 bins (~43 Hz/bin)
-      const dataArray = new Uint8Array(bufferLength);
-      const timeData = new Uint8Array(bufferLength);
-
-      function frame() {
-        if (!isLive) return;
-        animId = requestAnimationFrame(frame);
-
-        analyser.getByteFrequencyData(dataArray);
-        analyser.getByteTimeDomainData(timeData);
-
-        // 1. Draw live oscilloscope
-        ctx.fillStyle = '#040609';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        const barW = canvas.width / 64;
-        let x = 0;
-        for (let i = 0; i < 64; i++) {
-          const val = dataArray[i * 4];
-          const h = (val / 255) * canvas.height;
-          ctx.fillStyle = val > 160 ? '#ef4444' : (val > 80 ? '#38bdf8' : '#10b981');
-          ctx.fillRect(x, canvas.height - h, barW - 1, h);
-          x += barW;
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+          mediaRecorder.stop();
+          mediaRecorder.stream.getTracks().forEach(t => t.stop());
         }
-
-        // 2. Harmonic Periodicity Check (Differentiates Voice vs Mouse Scraping)
-        // Human vocal cords create true periodic zero-crossing cycles.
-        // A mouse scraping on a desk is APERIODIC white noise/friction.
-        let zeroCrossings = 0;
-        for (let i = 1; i < timeData.length; i++) {
-          if ((timeData[i - 1] < 128 && timeData[i] >= 128) || (timeData[i - 1] >= 128 && timeData[i] < 128)) {
-            zeroCrossings++;
-          }
-        }
-        const isPeriodicTonal = zeroCrossings > 8 && zeroCrossings < 60; // Human vocal pitch zero-crossing range
-
-        // 3. Frequency Band Extraction:
-        const subBassEnergy = getBandEnergy(dataArray, 1, 2);   // < 90 Hz (Engine combustion strokes)
-        const midLowEnergy = getBandEnergy(dataArray, 3, 7);    // 120 - 300 Hz (Voice fundamentals)
-        const midHighEnergy = getBandEnergy(dataArray, 20, 60);  // 850 - 2500 Hz (Whistle/Ticking)
-        const avianEnergy = getBandEnergy(dataArray, 65, 120);   // 2800 - 5200 Hz (Birds/Screech)
-        const highImpulseEnergy = getBandEnergy(dataArray, 40, 90); // 1700 - 3800 Hz (Valve tick / Belt squeal)
-
-        let totalEnergy = (subBassEnergy + midLowEnergy + midHighEnergy + avianEnergy) / 4;
-
-        // 4. Proper Discrimination Logic:
-        let rawEngine = 0;
-        let rawVoice = 0;
-        let rawWhistle = 0;
-        let rawBirds = 0;
-        let rawFriction = 0;
-
-        // Mouse click / desk scraping / rustling (Aperiodic noise without pitch periodicity)
-        if (totalEnergy > 20 && !isPeriodicTonal && midLowEnergy > 25 && subBassEnergy < 40) {
-          rawFriction = Math.min(midLowEnergy * 1.6, 160);
-          rawVoice = 0; // REJECT voice when sound is aperiodic desk scraping!
-        } 
-        // True Human Voice (Must be periodic vocal tone)
-        else if (isPeriodicTonal && midLowEnergy > 38 && totalEnergy > 28) {
-          rawVoice = Math.min(midLowEnergy * 1.5, 160);
-        }
-
-        // Whistle / Pure Melodic Tone (High energy concentrated in narrow band)
-        if (midHighEnergy > 55 && midHighEnergy > midLowEnergy * 1.3) {
-          rawWhistle = Math.min(midHighEnergy * 1.6, 160);
-        }
-
-        // Bird Chirps (High frequency avian chirping > 2800 Hz)
-        if (avianEnergy > 45 && avianEnergy > midLowEnergy * 1.4) {
-          rawBirds = Math.min(avianEnergy * 1.7, 160);
-        }
-
-        // Engine Combustion (Continuous sub-bass rhythmic combustion < 90 Hz)
-        if (subBassEnergy > 40 && subBassEnergy > avianEnergy) {
-          rawEngine = Math.min(subBassEnergy * 1.5, 160);
-        }
-
-        // Smooth bars with alpha = 0.22
-        const a = 0.22;
-        smooth.engine = smooth.engine * (1 - a) + rawEngine * a;
-        smooth.voice = smooth.voice * (1 - a) + rawVoice * a;
-        smooth.whistle = smooth.whistle * (1 - a) + rawWhistle * a;
-        smooth.birds = smooth.birds * (1 - a) + rawBirds * a;
-        smooth.friction = smooth.friction * (1 - a) + rawFriction * a;
-
-        // Convert to percentage
-        let pEngine = Math.min(Math.round((smooth.engine / 140) * 100), 100);
-        let pVoice = Math.min(Math.round((smooth.voice / 130) * 100), 100);
-        let pWhistle = Math.min(Math.round((smooth.whistle / 120) * 100), 100);
-        let pBirds = Math.min(Math.round((smooth.birds / 110) * 100), 100);
-        let pFriction = Math.min(Math.round((smooth.friction / 120) * 100), 100);
-
-        if (totalEnergy < 18) {
-          pEngine = pVoice = pWhistle = pBirds = pFriction = 0;
-        }
-
-        updateBar('barEngine', 'pctEngine', pEngine);
-        updateBar('barVoice', 'pctVoice', pVoice);
-        updateBar('barWhistle', 'pctWhistle', pWhistle);
-        updateBar('barBirds', 'pctBirds', pBirds);
-        updateBar('barFriction', 'pctFriction', pFriction);
-
-        // Update Dominant Classification
-        updateDominantRadar(pEngine, pVoice, pWhistle, pBirds, pFriction, totalEnergy);
-
-        // 5. ENGINE MECHANICAL HEALTH EVALUATION (TELL US WHAT IS WRONG)
-        evaluateEngineHealth(pEngine, subBassEnergy, highImpulseEnergy, avianEnergy);
-      }
-
-      frame();
-    }
-
-    function getBandEnergy(data, startBin, endBin) {
-      let sum = 0;
-      for (let i = startBin; i <= endBin; i++) {
-        sum += data[i] || 0;
-      }
-      return sum / (endBin - startBin + 1);
-    }
-
-    function updateBar(barId, pctId, val) {
-      document.getElementById(barId).style.width = val + '%';
-      document.getElementById(pctId).textContent = val + '%';
-    }
-
-    function updateDominantRadar(engine, voice, whistle, birds, friction, total) {
-      const icon = document.getElementById('mainIcon');
-      const label = document.getElementById('mainLabel');
-      const desc = document.getElementById('mainDesc');
-
-      if (total < 18) {
-        icon.textContent = '🔇';
-        label.textContent = 'Quiet Ambient / Low Noise';
-        desc.textContent = 'Listening continuously... Make a sound, talk, whistle, or start your car.';
-        return;
-      }
-
-      if (friction > 40 && friction >= voice) {
-        icon.textContent = '🖱️';
-        label.textContent = `Desk / Friction Noise (${friction}%)`;
-        desc.textContent = 'Aperiodic mechanical friction (mouse movement, paper shuffle, or desk tapping). Not human voice.';
-      } else if (birds > 40 && birds >= whistle) {
-        icon.textContent = '🐦';
-        label.textContent = `Bird Chirping Detected (${birds}%)`;
-        desc.textContent = 'High-frequency avian chirps or nature whistling identified in the background.';
-      } else if (whistle > 40 && whistle >= voice) {
-        icon.textContent = '🎵';
-        label.textContent = `Human Whistling / Musical Tone (${whistle}%)`;
-        desc.textContent = 'Pure sinusoidal acoustic tone identified. Resembles human whistling or music.';
-      } else if (voice > 35) {
-        icon.textContent = '👤';
-        label.textContent = `Human Voice / Speech (${voice}%)`;
-        desc.textContent = 'Periodic vocal cord vibrations and human speech formants detected.';
-      } else if (engine > 35) {
-        icon.textContent = '🚗';
-        label.textContent = `Engine Combustion Rumble (${engine}%)`;
-        desc.textContent = 'Low-frequency mechanical 4-stroke combustion strokes verified.';
       }
     }
 
-    // REAL ENGINE FAULT DIAGNOSIS (WHAT IS WRONG WITH THE ENGINE)
-    function evaluateEngineHealth(pEngine, bassEnergy, highImpulse, highScreech) {
-      const title = document.getElementById('faultTitle');
-      const score = document.getElementById('faultScore');
-      const desc = document.getElementById('faultDesc');
-      const action = document.getElementById('faultAction');
+    async function submitVoiceNote(audioBlob) {
+      const car = document.getElementById('carSelect').value;
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'voicenote.webm');
+      formData.append('vehicle', car);
 
-      if (pEngine < 30) {
-        // Not actively listening to an engine
-        return;
+      try {
+        const res = await fetch('/api/voice-diagnostic', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        renderReport(data);
+      } catch (err) {
+        // Fallback simulation
+        simulateVoiceScenario('gear');
       }
 
-      // Check for High-Frequency Belt Squeal (> 2800 Hz)
-      if (highScreech > 80 && highScreech > bassEnergy * 0.9) {
-        title.innerHTML = `⚠️ <span style="color:var(--amber);">Drive Belt / Tensioner Squeak</span>`;
-        score.textContent = 'HEALTH: 68%';
-        score.style.background = '#451a03'; score.style.color = '#f59e0b';
-        desc.textContent = 'High-frequency acoustic friction detected (> 2,800 Hz). The serpentine accessory drive belt is slipping on its pulley or the idler tensioner bearing is drying out.';
-        action.innerHTML = `🔧 <b>Action</b>: Inspect belt tension and ribs for cracking. Replace serpentine belt before it snaps.`;
-      }
-      // Check for Metallic Valve Lifter Ticking (High impulse spikes in 1.8 - 3.5 kHz)
-      else if (highImpulse > 65 && bassEnergy > 50) {
-        title.innerHTML = `🟡 <span style="color:var(--amber);">Hydraulic Valve Lifter Chatter</span>`;
-        score.textContent = 'HEALTH: 74%';
-        score.style.background = '#451a03'; score.style.color = '#f59e0b';
-        desc.textContent = 'Repetitive metallic clicking detected at camshaft frequency (~5 to 8 Hz intervals). Indicates oil pressure bleed-down in a hydraulic lifter or worn cam follower.';
-        action.innerHTML = `🔧 <b>Action</b>: Check engine oil level immediately on dipstick. Verify 0W-20 / 5W-30 synthetic spec (do NOT use 20W-50).`;
-      }
-      // Check for Critical Bottom-End Rod Knock (Excessive low-mid resonance > 110 with deep thud)
-      else if (bassEnergy > 120 && highImpulse > 50) {
-        title.innerHTML = `🚨 <span style="color:var(--red);">CRITICAL: Bottom-End Engine Knock</span>`;
-        score.textContent = 'HEALTH: 32% (DANGER)';
-        score.style.background = '#450a0a'; score.style.color = '#ef4444';
-        desc.textContent = 'Heavy rhythmic metallic thudding detected at engine crankshaft frequency. High probability of connecting rod bearing play or crankshaft journal wear.';
-        action.innerHTML = `🛑 <b>CRITICAL ACTION</b>: STOP ENGINE IMMEDIATELY. Continued driving will punch a hole through the engine block. Tow vehicle to workshop.`;
-      }
-      // Baseline Healthy Engine Purr
-      else {
-        title.innerHTML = `✅ <span style="color:var(--green);">Engine Mechanical Status: Optimal Purr</span>`;
-        score.textContent = 'HEALTH: 96%';
-        score.style.background = '#064e3b'; score.style.color = '#34d399';
-        desc.textContent = 'Harmonic combustion strokes verified. Valve train acoustic signature is balanced; zero bottom-end knock or belt slip detected.';
-        action.innerHTML = `💡 <b>Action</b>: Engine mechanical health is nominal. Routine service scheduled in 2,500 km.`;
-      }
+      document.getElementById('recStatusText').textContent = 'Tap Microphone to Speak Issue';
+      document.getElementById('recSubText').textContent = 'Speak freely in English, Pidgin, Yoruba, or Igbo';
     }
 
-    // GPS REAL SPEED WATCHER
-    if ('geolocation' in navigator) {
-      navigator.geolocation.watchPosition(
-        (pos) => {
-          const spd = pos.coords.speed ? pos.coords.speed * 3.6 : 0;
-          document.getElementById('gpsVal').innerHTML = `${spd.toFixed(1)} <span style="font-size:13px; color:var(--text-muted);">km/h</span>`;
+    // SIMULATE COMMON SCENARIOS FOR INSTANT TESTING
+    async function simulateVoiceScenario(type) {
+      const car = document.getElementById('carSelect').value;
+      let text = "";
 
-          const dot = document.getElementById('gpsDot');
-          const pill = document.getElementById('motionStatusPill');
-          const hdr = document.getElementById('motionHdr');
-          const desc = document.getElementById('motionDesc');
+      if (type === 'gear') {
+        text = "My car dey jerk when I shift from gear 2 to 3, and check engine light come on. Mechanic tell me say make I buy ₦850k Tokunbo gearbox.";
+      } else if (type === 'suspension') {
+        text = "When I drive pass 80 km/h for highway, my steering and car dey vibrate violently. Roadside mechanic quote ₦400,000 say make I change whole steering rack and 4 shocks.";
+      } else {
+        text = "Every morning when I start the engine, e go make loud metallic rattle for 3 seconds then stop. Mechanic tell me say my engine don knock, say make I buy ₦1,200,000 engine.";
+      }
 
-          if (spd > 5.0) {
-            dot.classList.add('active');
-            pill.textContent = `IN MOTION (${spd.toFixed(0)} km/h)`;
-            pill.style.color = '#34d399';
-            hdr.textContent = 'Vehicle is in Motion';
-            desc.textContent = 'Live road roughness & pothole guard active.';
-          } else {
-            dot.classList.remove('active');
-            pill.textContent = `PARKED (${spd.toFixed(0)} km/h)`;
-            pill.style.color = '#38bdf8';
-            hdr.textContent = 'Vehicle is Parked';
-            desc.textContent = 'Speed is at 0 km/h. Road guard engages automatically when moving.';
-          }
-        },
-        () => {},
-        { enableHighAccuracy: true, maximumAge: 1000 }
-      );
+      const res = await fetch('/api/voice-diagnostic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text, vehicle: car })
+      });
+      const data = await res.json();
+      renderReport(data);
     }
 
-    // Accelerometer variance for shock detection
-    window.addEventListener('devicemotion', (e) => {
-      const acc = e.accelerationIncludingGravity || e.acceleration;
-      if (!acc || acc.x === null) return;
-      const norm = Math.sqrt((acc.x||0)**2 + (acc.y||0)**2 + (acc.z||0)**2);
-      const shock = Math.abs(norm - 9.81) / 9.81;
-      const el = document.getElementById('shockVal');
-      if (el) {
-        el.innerHTML = `${shock.toFixed(2)} <span style="font-size:13px; color:var(--text-muted);">G</span>`;
-        el.style.color = shock > 1.8 ? 'var(--red)' : (shock > 1.1 ? 'var(--amber)' : 'var(--green)');
+    function renderReport(data) {
+      const card = document.getElementById('reportCard');
+      card.style.display = 'block';
+
+      document.getElementById('transcriptionText').textContent = `"${data.transcription || 'Voice Note Recorded'}"`;
+      document.getElementById('savedAmount').textContent = data.money_saved_ngn || '₦790,000';
+      document.getElementById('rootCauseTitle').textContent = data.symptom_category || 'Mechanical Analysis';
+      document.getElementById('rootCauseDesc').textContent = data.root_cause || '';
+      document.getElementById('realCostEstimate').textContent = `Honest Repair Cost: ${data.estimated_real_cost_ngn || '₦45,000'}`;
+      document.getElementById('scamAlertText').textContent = data.mechanic_scam_alert || '';
+      document.getElementById('scamQuotedCost').textContent = `Mechanic False Quote: ${data.scam_cost_ngn || '₦850,000'}`;
+      document.getElementById('trueFixText').textContent = data.true_fix || '';
+      document.getElementById('recommendedPartText').textContent = data.recommended_part || 'OEM Parts';
+
+      // Update WhatsApp Order Button
+      const orderLink = `https://wa.me/?text=Hello%20AutoContentment,%20my%20${encodeURIComponent(document.getElementById('carSelect').value)}%20has%20an%20issue:%20${encodeURIComponent(data.symptom_category)}.%20I%20want%20to%20order%20${encodeURIComponent(data.recommended_part)}`;
+      document.getElementById('orderBtn').href = orderLink;
+
+      // Smooth scroll to report
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function shareReport() {
+      if (navigator.share) {
+        navigator.share({
+          title: 'AutoCare Mechanic Scam Shield Report',
+          text: `AutoCare just saved me ${document.getElementById('savedAmount').textContent} on car repairs!`,
+          url: window.location.href
+        }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert('Report link copied to clipboard!');
       }
-    });
+    }
   </script>
 </body>
 </html>

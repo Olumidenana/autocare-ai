@@ -14,11 +14,13 @@ from src.config import settings
 from src.database.db import init_db
 from src.webhook.routes import router as webhook_router
 from src.engine.environmental_classifier import EnvironmentalAudioClassifier
+from src.engine.voice_diagnostic import VoiceDiagnosticService
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("autocare")
 
 classifier = EnvironmentalAudioClassifier()
+voice_diagnostic_service = VoiceDiagnosticService()
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 MONITOR_HTML_PATH = STATIC_DIR / "vibration_monitor.html"
@@ -82,6 +84,38 @@ async def api_classify_audio(request: Request):
             return await classifier.classify_audio(raw_audio)
     except Exception as e:
         return {"sound_category": "UNKNOWN", "title": "Sound Detected", "description": str(e)}
+
+
+@app.post("/api/voice-diagnostic")
+async def api_voice_diagnostic(request: Request):
+    """
+    Primary Voice Note Diagnostic Endpoint.
+    Accepts recorded voice notes in English, Pidgin, Yoruba, or Igbo,
+    evaluates mechanical failure, exposes mechanic fraud, and calculates money saved.
+    """
+    try:
+        content_type = request.headers.get("content-type", "")
+        if "application/json" in content_type:
+            body = await request.json()
+            text = body.get("text", "")
+            veh = body.get("vehicle", "Mercedes-Benz C300")
+            return await voice_diagnostic_service.process_voice_note(b"", vehicle_model=veh, user_text_fallback=text)
+        elif "multipart/form-data" in content_type:
+            form = await request.form()
+            audio_file = form.get("audio")
+            veh = form.get("vehicle", "Mercedes-Benz C300")
+            text_fallback = form.get("text", None)
+            audio_bytes = await audio_file.read() if audio_file else b""
+            return await voice_diagnostic_service.process_voice_note(audio_bytes, vehicle_model=veh, user_text_fallback=text_fallback)
+        else:
+            raw_audio = await request.body()
+            return await voice_diagnostic_service.process_voice_note(raw_audio)
+    except Exception as e:
+        return {
+            "symptom_category": "Diagnostic Processing",
+            "root_cause": "Could not complete audio processing.",
+            "mechanic_scam_alert": str(e)
+        }
 
 
 @app.get("/", response_class=HTMLResponse)
