@@ -3,197 +3,243 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>AutoContentment | Autonomous Vehicle Companion & Scam Shield</title>
+  <title>AutoContentment | Official 3D Digital Companion & Scam Shield</title>
   
+  <!-- Three.js for 3D Holographic Automotive Modeling -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
   <style>
     :root {
-      --bg: #06080d;
-      --card: #0e121a;
-      --border: #1e2638;
+      --ac-green: #0C813D;
+      --ac-green-glow: rgba(12, 129, 61, 0.45);
+      --ac-green-light: #16a34a;
+      --bg: #05070a;
+      --card: #0b0f16;
+      --card-elevated: #111722;
+      --border: #1a2333;
       --text: #ffffff;
       --muted: #8b949e;
-      --accent: #2563eb;
-      --green: #10b981;
       --red: #ef4444;
       --amber: #f59e0b;
-      --cyan: #38bdf8;
       --mono: "SF Mono", "Consolas", monospace;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; min-height: 100vh; padding-bottom: 80px; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; min-height: 100vh; overflow-x: hidden; padding-bottom: 80px; }
 
-    /* Top Sticky Brand Bar */
-    .top-bar { background: rgba(6, 8, 13, 0.95); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-    .brand-title { font-size: 15px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
-    .status-pill { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; background: #064e3b; color: #34d399; padding: 4px 12px; border-radius: 999px; }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #34d399; box-shadow: 0 0 8px #34d399; }
+    /* Top Brand Navigation with AutoContentment Official Identity */
+    .brand-header { background: rgba(5, 7, 10, 0.95); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+    .brand-left { display: flex; align-items: center; gap: 14px; }
+    .ac-logo-img { height: 32px; width: auto; object-fit: contain; }
+    .brand-text { display: flex; flex-direction: column; }
+    .ac-title { font-size: 14px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; }
+    .ac-sub { font-size: 10px; color: var(--ac-green-light); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
-    /* Top Navigation Tabs */
-    .nav-tabs { display: flex; background: #090c12; border-bottom: 1px solid var(--border); padding: 0 16px; overflow-x: auto; gap: 6px; }
-    .tab-btn { background: none; border: none; color: var(--muted); padding: 14px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
-    .tab-btn.active { color: #fff; border-bottom-color: var(--accent); }
+    .status-badge { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; background: rgba(12, 129, 61, 0.15); color: #34d399; border: 1px solid var(--ac-green); padding: 4px 12px; border-radius: 999px; }
+    .pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ac-green-light); box-shadow: 0 0 10px var(--ac-green); animation: pulseAc 1.8s infinite; }
+    @keyframes pulseAc { 0%, 100% { opacity: 0.4; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.15); } }
 
-    .container { max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+    /* Responsive Nav Tabs */
+    .nav-tabs { display: flex; background: #080b10; border-bottom: 1px solid var(--border); padding: 0 18px; overflow-x: auto; gap: 8px; }
+    .tab-item { background: none; border: none; color: var(--muted); padding: 14px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+    .tab-item.active { color: #fff; border-bottom-color: var(--ac-green); }
+
+    .main-wrap { max-width: 1200px; margin: 0 auto; padding: 22px 18px; }
     .tab-pane { display: none; }
     .tab-pane.active { display: block; }
 
-    /* Vehicle Banner */
-    .car-banner { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
-    .car-name { font-size: 17px; font-weight: 800; color: #fff; }
-    .car-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    select { background: #161d2a; color: #fff; border: 1px solid #2d3748; border-radius: 8px; padding: 8px 12px; font-size: 12px; }
+    /* 3D VEHICLE STAGE CARD */
+    .stage-3d-card { background: radial-gradient(circle at 50% 30%, #0d1522 0%, #05070a 80%); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 24px; position: relative; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+    .stage-overlay { position: absolute; top: 18px; left: 20px; z-index: 10; pointer-events: none; }
+    .stage-car-name { font-size: 20px; font-weight: 800; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+    .stage-car-tag { font-size: 11px; color: var(--ac-green-light); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+    .stage-controls-overlay { position: absolute; top: 18px; right: 20px; z-index: 10; display: flex; gap: 8px; }
+    .view-chip { background: rgba(11, 15, 22, 0.85); backdrop-filter: blur(8px); border: 1px solid var(--border); color: #fff; font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: all 0.15s; }
+    .view-chip:active { background: var(--ac-green); }
+
+    #webglCanvas { width: 100%; height: 320px; display: block; border-radius: 12px; cursor: grab; }
+    #webglCanvas:active { cursor: grabbing; }
+
+    .stage-hint { text-align: center; font-size: 11px; color: var(--muted); margin-top: 10px; font-family: var(--mono); }
+
+    /* 3D Component Inspection Nodes */
+    .nodes-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
+    @media (max-width: 640px) { .nodes-grid { grid-template-columns: repeat(2, 1fr); } }
+    .node-card { background: rgba(14, 18, 26, 0.85); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; cursor: pointer; transition: all 0.2s; }
+    .node-card:hover, .node-card.active { border-color: var(--ac-green); background: rgba(12, 129, 61, 0.1); }
+    .node-title { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); }
+    .node-status { font-size: 13px; font-weight: 800; color: #fff; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
 
     /* VOICE NOTE RECORDER HERO */
-    .recorder-hero { background: linear-gradient(180deg, #101624 0%, #0c1018 100%); border: 1px solid #23304a; border-radius: 20px; padding: 32px 20px; text-align: center; margin-bottom: 24px; position: relative; overflow: hidden; }
-    .recorder-hero::before { content: ""; position: absolute; top: -80px; left: 50%; transform: translateX(-50%); width: 220px; height: 220px; background: radial-gradient(circle, rgba(37,99,235,0.2) 0%, transparent 70%); }
-    
-    .mic-wrap { width: 100px; height: 100px; margin: 0 auto 16px; position: relative; z-index: 1; }
-    .mic-btn { width: 100%; height: 100%; border-radius: 50%; background: #2563eb; color: #fff; border: none; font-size: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 30px rgba(37,99,235,0.4); }
-    .mic-btn.listening { background: var(--red); box-shadow: 0 0 40px rgba(239,68,68,0.8); animation: pulseRecord 1.4s infinite; }
-    @keyframes pulseRecord { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+    .recorder-hero { background: linear-gradient(180deg, #09121a 0%, #06090e 100%); border: 1px solid rgba(12, 129, 61, 0.3); border-radius: 20px; padding: 32px 20px; text-align: center; margin-bottom: 24px; position: relative; overflow: hidden; box-shadow: 0 0 35px rgba(12, 129, 61, 0.15); }
+    .mic-wrap { width: 95px; height: 95px; margin: 0 auto 16px; position: relative; z-index: 1; }
+    .mic-btn { width: 100%; height: 100%; border-radius: 50%; background: var(--ac-green); color: #fff; border: none; font-size: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 30px var(--ac-green-glow); }
+    .mic-btn.listening { background: var(--red); box-shadow: 0 0 40px rgba(239,68,68,0.8); animation: pulseMic 1.4s infinite; }
+    @keyframes pulseMic { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
 
-    .rec-status { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 4px; z-index: 1; position: relative; }
-    .rec-sub { font-size: 13px; color: var(--muted); z-index: 1; position: relative; }
+    .rec-status { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+    .rec-sub { font-size: 13px; color: var(--muted); }
     .vad-indicator { font-family: var(--mono); font-size: 12px; color: #34d399; font-weight: 700; margin-top: 8px; display: none; }
 
-    /* Live Voice Waveform Bar */
-    .vad-wave-bar { height: 6px; width: 180px; background: #1a2333; border-radius: 3px; margin: 10px auto 0; overflow: hidden; display: none; }
-    .vad-wave-fill { height: 100%; width: 0%; background: #34d399; transition: width 0.08s ease; }
+    /* Auto-Silence Wave Bar */
+    .wave-meter-wrap { height: 6px; width: 180px; background: #151d2a; border-radius: 3px; margin: 10px auto 0; overflow: hidden; display: none; }
+    .wave-meter-fill { height: 100%; width: 0%; background: var(--ac-green-light); transition: width 0.08s ease; }
 
-    /* Quick Test Pill Buttons */
-    .pill-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 18px; z-index: 1; position: relative; }
-    .pill { background: #182233; color: #93c5fd; border: 1px solid #23304a; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer; font-weight: 600; }
-    .pill:active { background: #2563eb; color: #fff; }
+    /* Quick Demo Scenario Pills */
+    .pill-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 18px; }
+    .scam-pill { background: #0e1522; color: #93c5fd; border: 1px solid #1e2d44; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer; font-weight: 600; }
+    .scam-pill:active { background: var(--ac-green); color: #fff; }
 
     /* SCAM SHIELD REPORT */
-    .report-card { background: #0c111a; border: 1px solid var(--border); border-radius: 18px; padding: 22px; margin-bottom: 24px; display: none; animation: slideDown 0.3s ease-out; }
-    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .report-card { background: #0c1017; border: 1px solid var(--border); border-radius: 18px; padding: 22px; margin-bottom: 24px; display: none; animation: slideIn 0.3s ease-out; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .transcription-box { background: #131824; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: #cbd5e1; border-left: 3px solid #60a5fa; }
-    .money-saved-banner { background: linear-gradient(135deg, #064e3b 0%, #022c22 100%); border: 1px solid #059669; border-radius: 14px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .transcript-box { background: #111724; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: #cbd5e1; border-left: 3px solid var(--ac-green); }
+    .money-saved-banner { background: linear-gradient(135deg, #064e3b 0%, #032d20 100%); border: 1px solid var(--ac-green); border-radius: 14px; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; box-shadow: 0 4px 20px rgba(12,129,61,0.25); }
     .saved-lbl { font-size: 11px; text-transform: uppercase; font-weight: 700; color: #6ee7b7; letter-spacing: 1px; }
-    .saved-val { font-size: 26px; font-weight: 900; color: #fff; font-family: var(--mono); margin-top: 2px; }
+    .saved-val { font-size: 28px; font-weight: 900; color: #fff; font-family: var(--mono); margin-top: 2px; }
 
     .triage-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 18px; }
     @media (min-width: 600px) { .triage-grid { grid-template-columns: 1fr 1fr; } }
-    .triage-box { background: #111622; border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .triage-box { background: #10151f; border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
     .triage-lbl { font-size: 11px; text-transform: uppercase; font-weight: 700; margin-bottom: 6px; }
 
-    .btn-primary { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 14px 20px; font-size: 13px; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
+    .btn-ac-order { background: var(--ac-green); color: #fff; border: none; border-radius: 10px; padding: 15px 22px; font-size: 13px; font-weight: 800; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-shadow: 0 4px 15px var(--ac-green-glow); text-transform: uppercase; letter-spacing: 0.5px; }
 
-    /* POTHOLE & MOTION TAB */
-    .motion-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+    /* POTHOLE GUARD */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
     .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
     .metric-lbl { font-size: 11px; text-transform: uppercase; color: var(--muted); }
     .metric-val { font-family: var(--mono); font-size: 32px; font-weight: 800; line-height: 1.1; margin-top: 6px; }
 
-    /* ENGINE SOUND RADAR TAB */
-    .radar-box { background: #070a10; border: 1px solid var(--border); border-radius: 14px; padding: 22px; text-align: center; margin-bottom: 18px; }
-    canvas { width: 100%; height: 90px; background: #040609; border: 1px solid #161e2e; border-radius: 8px; display: block; margin: 12px 0; }
-
-    /* FUEL & MAINTENANCE TAB */
-    .fuel-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
-    .fuel-input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
-    .input-box { background: #161d2a; border: 1px solid #2d3748; border-radius: 8px; padding: 12px; color: #fff; width: 100%; font-size: 14px; font-family: var(--mono); }
+    /* DEALER STORE CARD */
+    .dealer-card { background: linear-gradient(135deg, #09131d 0%, #050a10 100%); border: 1px solid var(--ac-green); border-radius: 16px; padding: 20px; display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+    .ac-buy-btn { background: var(--ac-green); color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 12px; font-weight: 800; text-decoration: none; white-space: nowrap; }
   </style>
 </head>
 <body>
 
-  <!-- Top Brand Navigation -->
-  <header class="top-bar">
-    <div class="brand-title">AUTOCONTENTMENT</div>
-    <div class="status-pill">
-      <div class="status-dot"></div>
-      COMPANION ACTIVE
+  <!-- Official Brand Top Navigation -->
+  <header class="brand-header">
+    <div class="brand-left">
+      <!-- AutoContentment Official Logo Asset -->
+      <img src="https://autocontentment.com/uploads/site_photos/5adc6f59e1723d2b255e4f0b3622234e.png" alt="AutoContentment Logo" class="ac-logo-img" onerror="this.style.display='none'">
+      <div class="brand-text">
+        <div class="ac-title">AutoContentment</div>
+        <div class="ac-sub">Verified Digital Companion</div>
+      </div>
+    </div>
+    <div class="status-badge">
+      <div class="pulse-dot"></div>
+      ACTIVE
     </div>
   </header>
 
-  <!-- 4-Pillar Tabs Navigation -->
+  <!-- Navigation Switcher -->
   <nav class="nav-tabs">
-    <button class="tab-btn active" onclick="showTab('voice')">🎙️ Voice Scam Shield</button>
-    <button class="tab-btn" onclick="showTab('pothole')">🛡️ In-Motion Pothole Guard</button>
-    <button class="tab-btn" onclick="showTab('radar')">🎧 Engine Sound Radar</button>
-    <button class="tab-btn" onclick="showTab('fuel')">⛽ Fuel & Mileage Tracker</button>
-    <button class="tab-btn" onclick="showTab('store')">🛒 Genuine Parts Store</button>
+    <button class="tab-item active" onclick="switchNav('stage')">🏎️ 3D Vehicle Stage</button>
+    <button class="tab-item" onclick="switchNav('scamshield')">🎙️ Voice Scam Shield</button>
+    <button class="tab-item" onclick="switchNav('pothole')">🛡️ In-Motion Road Guard</button>
+    <button class="tab-item" onclick="switchNav('store')">🛒 Genuine Parts Store</button>
   </nav>
 
-  <main class="container">
+  <main class="main-wrap">
 
-    <!-- Car Selector Banner (Always Visible) -->
-    <div class="car-banner">
-      <div>
-        <div class="car-name" id="dispCarName">2021 Mercedes-Benz C300 (W205)</div>
-        <div class="car-sub">Engine: M274 2.0L Turbo • AutoContentment Verified</div>
+    <!-- 3D INTERACTIVE VEHICLE STAGE (THE SHOWSTOPPER) -->
+    <div class="stage-3d-card" id="stageContainer">
+      <div class="stage-overlay">
+        <div class="stage-car-name" id="stageVehName">2022 Mercedes-Benz C300 (W205)</div>
+        <div class="stage-car-tag">AutoContentment Certified • 3D Telemetry Twin</div>
       </div>
-      <div>
-        <select id="carPick" onchange="updateVehicle()">
-          <option value="Mercedes-Benz C300">Mercedes-Benz C300 (M274)</option>
-          <option value="Lexus ES350">Lexus ES350 (2GR-FE V6)</option>
-          <option value="Lexus RX350">Lexus RX350 (2GR-FE V6)</option>
-          <option value="Toyota Camry">Toyota Camry (2.5L / 3.5L)</option>
-          <option value="Toyota Prado">Toyota Prado (1GR-FE V6)</option>
-          <option value="Honda Accord">Honda Accord (K24 i-VTEC)</option>
-        </select>
+      <div class="stage-controls-overlay">
+        <button class="view-chip" onclick="reset3DCamera()">Front 3/4</button>
+        <button class="view-chip" onclick="highlight3DComponent('engine')">Engine Bay</button>
+        <button class="view-chip" onclick="highlight3DComponent('transmission')">Gearbox</button>
+      </div>
+
+      <!-- Real WebGL 3D Canvas -->
+      <canvas id="webglCanvas"></canvas>
+
+      <div class="stage-hint">◀ Drag with finger or mouse to rotate car 360° • Zoom to inspect chassis ▶</div>
+
+      <!-- 3D Component Inspection Nodes -->
+      <div class="nodes-grid">
+        <div class="node-card active" onclick="highlight3DComponent('engine')">
+          <div class="node-title">Engine Core</div>
+          <div class="node-status" style="color:var(--ac-green-light);">● 96% Healthy</div>
+        </div>
+        <div class="node-card" onclick="highlight3DComponent('transmission')">
+          <div class="node-title">Transmission</div>
+          <div class="node-status" style="color:var(--ac-green-light);">● Solenoids OK</div>
+        </div>
+        <div class="node-card" onclick="highlight3DComponent('suspension')">
+          <div class="node-title">Suspension</div>
+          <div class="node-status" style="color:var(--ac-green-light);">● Damping Firm</div>
+        </div>
+        <div class="node-card" onclick="highlight3DComponent('catalytic')">
+          <div class="node-title">Exhaust & Cat</div>
+          <div class="node-status" style="color:var(--ac-green-light);">● 100% Present</div>
+        </div>
       </div>
     </div>
 
-    <!-- TAB 1: VOICE NOTE DIAGNOSTIC & SCAM SHIELD -->
-    <section id="voiceTab" class="tab-pane active">
+    <!-- TAB 1: VOICE NOTE FIRST-AID & SCAM SHIELD -->
+    <section id="scamshieldTab" class="tab-pane active">
       <div class="recorder-hero">
         <div class="mic-wrap">
-          <button class="mic-btn" id="voiceBtn" onclick="toggleVoiceWithAutoSilence()">🎙️</button>
+          <button class="mic-btn" id="vadMicBtn" onclick="toggleVADRecording()">🎙️</button>
         </div>
-        <div class="rec-status" id="recStatus">Tap to Speak Issue (Auto-Detects When Done)</div>
-        <div class="rec-sub" id="recSub">Speak freely in English, Pidgin, Yoruba, or Igbo</div>
-        <div class="vad-indicator" id="vadIndicator">🟢 Listening: Speak now... (Auto-stops when you finish)</div>
-        <div class="vad-wave-bar" id="vadWaveBar"><div class="vad-wave-fill" id="vadWaveFill"></div></div>
+        <div class="rec-status" id="vadStatusText">Tap to Speak Issue (Auto-Detects When Done)</div>
+        <div class="rec-sub" id="vadSubText">Speak freely in English, Pidgin, Yoruba, or Igbo</div>
+        <div class="vad-indicator" id="vadAlert">🟢 Listening... (Stops automatically when you finish talking)</div>
+        <div class="wave-meter-wrap" id="waveWrap"><div class="wave-meter-fill" id="waveFill"></div></div>
 
-        <!-- One-Tap Demo Scenarios -->
+        <!-- Nigerian Quack Mechanic Demo Pills -->
         <div class="pill-row">
-          <span style="font-size:11px; color:var(--muted); width:100%; margin-bottom:4px;">Or tap a common Nigerian mechanic scam:</span>
-          <button class="pill" onclick="demoScam('gear')">⚙️ Gearbox Jerking (₦850k Scam)</button>
-          <button class="pill" onclick="demoScam('vibration')">🚗 Highway Vibration (₦400k Scam)</button>
-          <button class="pill" onclick="demoScam('rattle')">🔊 Morning Engine Rattle (₦1.2M Scam)</button>
+          <span style="font-size:11px; color:var(--muted); width:100%; margin-bottom:4px;">Test common Nigerian roadside mechanic scams:</span>
+          <button class="scam-pill" onclick="simulateScamScenario('gear')">⚙️ Gearbox Jerking (₦850k Scam)</button>
+          <button class="scam-pill" onclick="simulateScamScenario('vibration')">🚗 Highway Vibration (₦400k Scam)</button>
+          <button class="scam-pill" onclick="simulateScamScenario('rattle')">🔊 Morning Cold Start Rattle (₦1.2M Scam)</button>
         </div>
       </div>
 
-      <!-- Result Card -->
-      <div class="report-card" id="reportCard">
-        <div class="transcription-box">
-          <span style="font-size:11px; text-transform:uppercase; color:#60a5fa; font-weight:700;">🎙️ Your Voice Note:</span>
-          <div style="margin-top:4px; font-style:italic;" id="txtTranscript">"..."</div>
+      <!-- SCAM SHIELD REPORT CARD -->
+      <div class="report-card" id="scamReportCard">
+        <div class="transcript-box">
+          <span style="font-size:11px; text-transform:uppercase; color:var(--ac-green-light); font-weight:700;">🎙️ Your Voice Note:</span>
+          <div style="margin-top:4px; font-style:italic;" id="repTranscript">"..."</div>
         </div>
 
         <div class="money-saved-banner">
           <div>
             <div class="saved-lbl">Money Saved From Quack Mechanics</div>
-            <div class="saved-val" id="txtSaved">₦790,000</div>
+            <div class="saved-val" id="repSaved">₦790,000</div>
           </div>
           <div style="font-size:36px;">🛡️</div>
         </div>
 
         <div class="triage-grid">
-          <div class="triage-box" style="border-left: 3px solid var(--green);">
-            <div class="triage-lbl" style="color:var(--green);">🔍 Real Engineering Root Cause</div>
-            <div style="font-size:14px; font-weight:700; color:#fff; margin-bottom:4px;" id="txtRootCauseTitle">Shift Solenoid Sticking</div>
-            <div style="font-size:13px; color:var(--muted); line-height:1.4;" id="txtRootCauseDesc">...</div>
-            <div style="margin-top:10px; font-size:12px; font-weight:700; color:#34d399;" id="txtRealCost">Honest Repair Cost: ~₦45,000</div>
+          <div class="triage-box" style="border-left: 3px solid var(--ac-green);">
+            <div class="triage-lbl" style="color:var(--ac-green-light);">🔍 Real Engineering Root Cause</div>
+            <div style="font-size:14px; font-weight:700; color:#fff; margin-bottom:4px;" id="repTitle">Shift Solenoid Sticking</div>
+            <div style="font-size:13px; color:var(--muted); line-height:1.4;" id="repDesc">...</div>
+            <div style="margin-top:10px; font-size:12px; font-weight:700; color:#34d399;" id="repRealCost">Honest Repair Cost: ~₦45,000</div>
           </div>
 
           <div class="triage-box" style="border-left: 3px solid var(--red);">
             <div class="triage-lbl" style="color:var(--red);">🛑 Quack Mechanic Scam Exposed</div>
-            <div style="font-size:13px; color:#fca5a5; line-height:1.4;" id="txtScamDesc">...</div>
-            <div style="margin-top:10px; font-size:12px; font-weight:700; color:#ef4444;" id="txtScamCost">Mechanic False Quote: ~₦850,000</div>
+            <div style="font-size:13px; color:#fca5a5; line-height:1.4;" id="repScamText">...</div>
+            <div style="margin-top:10px; font-size:12px; font-weight:700; color:#ef4444;" id="repScamCost">Mechanic False Quote: ~₦850,000</div>
           </div>
         </div>
 
-        <div style="background:#080c14; border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:18px;">
-          <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:#38bdf8; margin-bottom:4px;">💡 The Honest Mechanical Fix</div>
-          <div style="font-size:13px; color:#cbd5e1; line-height:1.5;" id="txtTrueFix">...</div>
-          <div style="font-size:12px; color:#60a5fa; margin-top:8px;">📦 <b>Recommended Genuine Part</b>: <span id="txtPart">OEM Fluid</span></div>
+        <div style="background:#090d14; border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:18px;">
+          <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--ac-green-light); margin-bottom:4px;">💡 The Honest Mechanical Fix</div>
+          <div style="font-size:13px; color:#cbd5e1; line-height:1.5;" id="repTrueFix">...</div>
+          <div style="font-size:12px; color:#93c5fd; margin-top:8px;">📦 <b>Recommended Genuine Part</b>: <span id="repPart">OEM Fluid</span></div>
         </div>
 
-        <a href="https://wa.me/?text=Hello%20AutoContentment,%20I%20need%20parts" target="_blank" class="btn-primary" id="btnOrderParts">
+        <a href="https://wa.me/?text=Hello%20AutoContentment,%20I%20want%20to%20order%20genuine%20parts" target="_blank" class="btn-ac-order" id="repOrderBtn">
           🛒 Order Genuine Parts from AutoContentment Store
         </a>
       </div>
@@ -201,96 +247,248 @@
 
     <!-- TAB 2: IN-MOTION POTHOLE & SPEED GUARD -->
     <section id="potholeTab" class="tab-pane">
-      <div class="motion-grid">
+      <div class="grid-2">
         <div class="metric-card">
           <div class="metric-lbl">GPS Velocity</div>
-          <div class="metric-val" id="gpsSpeed" style="color:var(--cyan);">0.0 <span style="font-size:13px; color:var(--muted);">km/h</span></div>
+          <div class="metric-val" id="dispSpeed" style="color:#38bdf8;">0.0 <span style="font-size:13px; color:var(--muted);">km/h</span></div>
         </div>
         <div class="metric-card">
           <div class="metric-lbl">Road Shock Load</div>
-          <div class="metric-val" id="shockG" style="color:var(--green);">0.08 <span style="font-size:13px; color:var(--muted);">G</span></div>
+          <div class="metric-val" id="dispShock" style="color:var(--ac-green-light);">0.08 <span style="font-size:13px; color:var(--muted);">G</span></div>
         </div>
       </div>
-      <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; margin-bottom:16px;">
-        <div style="font-size:14px; font-weight:700; margin-bottom:6px;" id="motionHeading">Vehicle is Stationary</div>
-        <div style="font-size:13px; color:var(--muted); line-height:1.4;" id="motionDetail">
-          Keep phone clamped in mount while driving. As soon as velocity exceeds 5 km/h, road shock logging and crater avoidance warnings activate automatically.
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px;">
+        <div style="font-weight:700; margin-bottom:4px;" id="motionHeading">Vehicle is Parked / Stationary</div>
+        <div style="font-size:13px; color:var(--muted); line-height:1.4;" id="motionSub">
+          Place phone in car mount while driving. As soon as you exceed 5 km/h, road shock logging and crater avoidance warnings activate automatically.
         </div>
       </div>
     </section>
 
-    <!-- TAB 3: ENGINE SOUND RADAR -->
-    <section id="radarTab" class="tab-pane">
-      <div class="radar-box">
-        <div style="font-size:38px; margin-bottom:6px;" id="radarIcon">🎧</div>
-        <div style="font-size:18px; font-weight:800; margin-bottom:4px;" id="radarLabel">Engine Sound Radar Standby</div>
-        <div style="font-size:13px; color:var(--muted);" id="radarDesc">Tap below to listen continuously for valve ticks, rod knock, and belt squeal.</div>
-      </div>
-      <canvas id="radarCanvas" height="90"></canvas>
-      <button class="btn-primary" id="btnRadar" onclick="toggleContinuousRadar()">▶ Engage Live Sound Radar</button>
-    </section>
-
-    <!-- TAB 4: FUEL & MAINTENANCE TRACKER -->
-    <section id="fuelTab" class="tab-pane">
-      <div class="fuel-card">
-        <div style="font-size:15px; font-weight:800; margin-bottom:6px;">⛽ Quick Fuel Fill Logger</div>
-        <div style="font-size:13px; color:var(--muted); margin-bottom:14px;">Tracks your real-world km/L economy and detects abnormal fuel consumption spikes.</div>
-        <div class="fuel-input-row">
-          <input type="number" class="input-box" id="fuelLiters" placeholder="Liters (e.g. 45)">
-          <input type="number" class="input-box" id="fuelCost" placeholder="Cost in ₦ (e.g. 38000)">
-        </div>
-        <button class="btn-primary" onclick="logFuel()">Calculate Trip Efficiency (km/L)</button>
-        <div id="fuelOutput" style="margin-top:14px; display:none; background:#080c14; border:1px solid var(--border); border-radius:10px; padding:14px; font-size:13px;"></div>
-      </div>
-    </section>
-
-    <!-- TAB 5: GENUINE STORE -->
+    <!-- TAB 3: GENUINE STORE -->
     <section id="storeTab" class="tab-pane">
-      <div style="background:var(--card); border:1px solid var(--border); border-radius:16px; padding:20px;">
-        <div style="font-size:16px; font-weight:800; margin-bottom:4px;">🛒 AutoContentment Genuine Parts Store</div>
-        <div style="font-size:13px; color:var(--muted); margin-bottom:18px;">100% Genuine fluids & fast-moving parts dispatched directly to your location.</div>
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid var(--border);">
-          <div>
-            <div style="font-weight:700;">Genuine OEM 0W-20 Synthetic Oil (5L)</div>
-            <div style="font-size:12px; color:var(--muted);">Protects timing chains & prevents sludge</div>
-          </div>
-          <a href="https://wa.me/?text=I%20want%20to%20order%20genuine%200W-20%20oil" target="_blank" style="background:#2563eb; color:#fff; padding:8px 14px; border-radius:6px; font-size:12px; font-weight:700; text-decoration:none;">₦45,000</a>
+      <div class="dealer-card">
+        <div>
+          <div style="font-size:10px; font-weight:800; color:var(--ac-green-light); text-transform:uppercase;">AutoContentment Verified</div>
+          <div style="font-size:15px; font-weight:800; color:#fff; margin-top:2px;">Genuine OEM 0W-20 Synthetic Oil (5L)</div>
+          <div style="font-size:12px; color:var(--muted);">Protects timing chains & prevents sludge (₦45,000)</div>
         </div>
+        <a href="https://wa.me/?text=I%20want%20to%20order%20genuine%200W-20%20oil%20from%20AutoContentment" target="_blank" class="ac-buy-btn">Order Direct</a>
       </div>
     </section>
 
   </main>
 
   <script>
-    // Tab Switcher
-    function showTab(tabId) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    // Tab Navigation
+    function switchNav(tabId) {
+      document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
       event.target.classList.add('active');
+      
+      if (tabId === 'stage') {
+        document.getElementById('stageContainer').scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
       document.getElementById(tabId + 'Tab').classList.add('active');
     }
 
-    function updateVehicle() {
-      const name = document.getElementById('carPick').value;
-      document.getElementById('dispCarName').textContent = name;
+    // ==========================================
+    // 3D HOLOGRAPHIC LUXURY VEHICLE MODELING (THREE.JS)
+    // ==========================================
+    let scene, camera, renderer, carGroup;
+    let engineMesh, transMesh, suspMesh, catMesh;
+    let isDragging = false, prevMouseX = 0;
+
+    function init3DVehicle() {
+      const container = document.getElementById('stageContainer');
+      const canvas = document.getElementById('webglCanvas');
+      const width = canvas.clientWidth;
+      const height = 320;
+
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
+      camera.position.set(5.5, 3.2, 7.5);
+
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Studio Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+      scene.add(ambientLight);
+
+      const greenKeyLight = new THREE.DirectionalLight(0x0C813D, 2.5);
+      greenKeyLight.position.set(5, 10, 7);
+      scene.add(greenKeyLight);
+
+      const rimLight = new THREE.DirectionalLight(0x38bdf8, 1.8);
+      rimLight.position.set(-6, -2, -5);
+      scene.add(rimLight);
+
+      // Build Luxury Car Procedural 3D Mesh
+      carGroup = new THREE.Group();
+
+      // Materials
+      const bodyMat = new THREE.MeshStandardMaterial({
+        color: 0x091018,
+        metalness: 0.85,
+        roughness: 0.25,
+        wireframe: false
+      });
+      const wireMat = new THREE.MeshBasicMaterial({
+        color: 0x0C813D,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.35
+      });
+      const glowGreen = new THREE.MeshStandardMaterial({
+        color: 0x0C813D,
+        emissive: 0x0C813D,
+        emissiveIntensity: 0.8
+      });
+
+      // 1. Lower Body Chassis
+      const chassisGeo = new THREE.BoxGeometry(4.2, 0.7, 1.8);
+      const chassis = new THREE.Mesh(chassisGeo, bodyMat);
+      chassis.position.y = 0.5;
+      carGroup.add(chassis);
+
+      const chassisWire = new THREE.Mesh(chassisGeo, wireMat);
+      chassisWire.position.y = 0.5;
+      carGroup.add(chassisWire);
+
+      // 2. Aerodynamic Cabin
+      const cabinGeo = new THREE.BoxGeometry(2.3, 0.65, 1.5);
+      const cabin = new THREE.Mesh(cabinGeo, bodyMat);
+      cabin.position.set(-0.2, 1.05, 0);
+      carGroup.add(cabin);
+
+      const cabinWire = new THREE.Mesh(cabinGeo, wireMat);
+      cabinWire.position.set(-0.2, 1.05, 0);
+      carGroup.add(cabinWire);
+
+      // 3. Wheels & Calipers
+      const wheelGeo = new THREE.CylinderGeometry(0.42, 0.42, 0.3, 24);
+      const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111620, roughness: 0.5 });
+      const wheelPositions = [
+        [1.3, 0.38, 0.95],
+        [1.3, 0.38, -0.95],
+        [-1.3, 0.38, 0.95],
+        [-1.3, 0.38, -0.95]
+      ];
+      wheelPositions.forEach(p => {
+        const w = new THREE.Mesh(wheelGeo, wheelMat);
+        w.rotation.x = Math.PI / 2;
+        w.position.set(p[0], p[1], p[2]);
+        carGroup.add(w);
+
+        const wRim = new THREE.Mesh(wheelGeo, wireMat);
+        wRim.rotation.x = Math.PI / 2;
+        wRim.position.set(p[0], p[1], p[2]);
+        carGroup.add(wRim);
+      });
+
+      // 4. Glowing Inspection Hotspot Nodes (Engine, Transmission, Suspension)
+      // Engine Node (Front)
+      const nodeGeo = new THREE.SphereGeometry(0.32, 16, 16);
+      engineMesh = new THREE.Mesh(nodeGeo, glowGreen);
+      engineMesh.position.set(1.4, 0.75, 0);
+      carGroup.add(engineMesh);
+
+      // Transmission Node (Center)
+      transMesh = new THREE.Mesh(nodeGeo, glowGreen.clone());
+      transMesh.position.set(0.1, 0.45, 0);
+      carGroup.add(transMesh);
+
+      // Suspension Node (Wheels)
+      suspMesh = new THREE.Mesh(nodeGeo, glowGreen.clone());
+      suspMesh.position.set(1.3, 0.6, 0.9);
+      carGroup.add(suspMesh);
+
+      // Ground Glow Grid
+      const grid = new THREE.GridHelper(10, 20, 0x0C813D, 0x111c2a);
+      grid.position.y = -0.05;
+      scene.add(grid);
+
+      scene.add(carGroup);
+
+      // Mouse / Touch Rotation Interaction
+      canvas.addEventListener('mousedown', (e) => { isDragging = true; prevMouseX = e.clientX; });
+      window.addEventListener('mouseup', () => { isDragging = false; });
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - prevMouseX;
+        carGroup.rotation.y += deltaX * 0.008;
+        prevMouseX = e.clientX;
+      });
+
+      canvas.addEventListener('touchstart', (e) => { isDragging = true; prevMouseX = e.touches[0].clientX; });
+      window.addEventListener('touchend', () => { isDragging = false; });
+      window.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const deltaX = e.touches[0].clientX - prevMouseX;
+        carGroup.rotation.y += deltaX * 0.008;
+        prevMouseX = e.touches[0].clientX;
+      });
+
+      animate3D();
     }
 
-    // 1. VOICE ACTIVITY DETECTION (VAD) WITH AUTO-SILENCE DETECTION
+    function animate3D() {
+      requestAnimationFrame(animate3D);
+      if (!isDragging) {
+        carGroup.rotation.y += 0.0035; // Gentle luxury 360 auto-orbit
+      }
+      renderer.render(scene, camera);
+    }
+
+    function reset3DCamera() {
+      carGroup.rotation.y = 0;
+      camera.position.set(5.5, 3.2, 7.5);
+    }
+
+    function highlight3DComponent(part) {
+      document.querySelectorAll('.node-card').forEach(n => n.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      if (part === 'engine') {
+        carGroup.rotation.y = 0.5;
+        pulseComponentColor(engineMesh, 0x0C813D);
+      } else if (part === 'transmission') {
+        carGroup.rotation.y = 1.6;
+        pulseComponentColor(transMesh, 0x2563eb);
+      } else if (part === 'suspension') {
+        carGroup.rotation.y = 0.9;
+        pulseComponentColor(suspMesh, 0x38bdf8);
+      }
+    }
+
+    function pulseComponentColor(mesh, hex) {
+      mesh.material.emissive.setHex(hex);
+      mesh.scale.set(1.4, 1.4, 1.4);
+      setTimeout(() => mesh.scale.set(1, 1, 1), 400);
+    }
+
+    window.addEventListener('DOMContentLoaded', init3DVehicle);
+
+    // ==========================================
+    // VOICE ACTIVITY DETECTION (VAD) & SCAM SHIELD
+    // ==========================================
     let isRecording = false;
     let mediaRecorder = null;
     let audioChunks = [];
-    let audioContext = null;
-    let analyserNode = null;
-    let vadInterval = null;
-    let silenceStart = null;
-    let hasSpoken = false;
+    let audioCtx = null;
+    let analyser = null;
+    let vadCheckInterval = null;
+    let silenceTimestamp = null;
+    let userHasSpoken = false;
 
-    async function toggleVoiceWithAutoSilence() {
-      const btn = document.getElementById('voiceBtn');
-      const status = document.getElementById('recStatus');
-      const sub = document.getElementById('recSub');
-      const vad = document.getElementById('vadIndicator');
-      const waveBar = document.getElementById('vadWaveBar');
+    async function toggleVADRecording() {
+      const btn = document.getElementById('vadMicBtn');
+      const status = document.getElementById('vadStatusText');
+      const vadAlert = document.getElementById('vadAlert');
+      const waveWrap = document.getElementById('waveWrap');
 
       if (!isRecording) {
         try {
@@ -298,59 +496,47 @@
           mediaRecorder = new MediaRecorder(stream);
           audioChunks = [];
 
-          audioContext = new (window.AudioContext || window.webkitAudioContext)();
-          analyserNode = audioContext.createAnalyser();
-          analyserNode.fftSize = 256;
-          const src = audioContext.createMediaStreamSource(stream);
-          src.connect(analyserNode);
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 256;
+          audioCtx.createMediaStreamSource(stream).connect(analyser);
 
-          mediaRecorder.ondataavailable = (e) => {
-            if (e.data.size > 0) audioChunks.push(e.data);
-          };
-
+          mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
           mediaRecorder.onstop = async () => {
-            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-            await submitVoiceData(audioBlob);
+            const blob = new Blob(audioChunks, { type: 'audio/webm' });
+            await submitVoice(blob);
           };
 
           mediaRecorder.start();
           isRecording = true;
-          hasSpoken = false;
-          silenceStart = null;
+          userHasSpoken = false;
+          silenceTimestamp = null;
 
           btn.classList.add('listening');
           btn.textContent = '⏹';
           status.textContent = 'Listening... Speak Your Issue';
-          sub.textContent = 'System will automatically stop when you finish talking';
-          vad.style.display = 'block';
-          waveBar.style.display = 'block';
+          vadAlert.style.display = 'block';
+          waveWrap.style.display = 'block';
 
-          // VAD Loop: Check energy every 80ms
-          const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
-          vadInterval = setInterval(() => {
-            analyserNode.getByteFrequencyData(dataArray);
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          vadCheckInterval = setInterval(() => {
+            analyser.getByteFrequencyData(dataArray);
             let sum = 0;
             for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
-            const avgVolume = sum / dataArray.length;
+            const avgVol = sum / dataArray.length;
 
-            // Animate wave bar
-            document.getElementById('vadWaveFill').style.width = Math.min((avgVolume / 90) * 100, 100) + '%';
+            document.getElementById('waveFill').style.width = Math.min((avgVol / 85) * 100, 100) + '%';
 
-            // Threshold for human speech: volume > 18
-            if (avgVolume > 18) {
-              hasSpoken = true;
-              silenceStart = null; // Reset silence clock
-              vad.textContent = '🟢 Speech Detected: Listening...';
-              vad.style.color = '#34d399';
-            } else if (hasSpoken) {
-              // User has spoken and now paused
-              if (!silenceStart) {
-                silenceStart = Date.now();
-              } else if (Date.now() - silenceStart > 1800) { // 1.8 seconds of silence
-                // AUTO-STOP TRIGGERED!
-                vad.textContent = '⚡ Silence Detected: Analyzing Your Voice Note...';
-                vad.style.color = '#38bdf8';
-                stopRecordingAutomatically();
+            if (avgVol > 18) {
+              userHasSpoken = true;
+              silenceTimestamp = null;
+              vadAlert.textContent = '🟢 Speech Detected: Listening...';
+            } else if (userHasSpoken) {
+              if (!silenceTimestamp) {
+                silenceTimestamp = Date.now();
+              } else if (Date.now() - silenceTimestamp > 1800) {
+                vadAlert.textContent = '⚡ Silence Detected: Analyzing Your Voice Note...';
+                stopVAD();
               }
             }
           }, 80);
@@ -359,54 +545,44 @@
           alert('Microphone access required: ' + err.message);
         }
       } else {
-        stopRecordingAutomatically();
+        stopVAD();
       }
     }
 
-    function stopRecordingAutomatically() {
+    function stopVAD() {
       if (!isRecording) return;
       isRecording = false;
-      const btn = document.getElementById('voiceBtn');
-      const status = document.getElementById('recStatus');
-      const sub = document.getElementById('recSub');
-      const vad = document.getElementById('vadIndicator');
-      const waveBar = document.getElementById('vadWaveBar');
-
+      const btn = document.getElementById('vadMicBtn');
       btn.classList.remove('listening');
       btn.textContent = '🎙️';
-      status.textContent = 'Analyzing Voice Note...';
-      sub.textContent = 'Exposing roadside mechanic scam...';
-      vad.style.display = 'none';
-      waveBar.style.display = 'none';
+      document.getElementById('vadStatusText').textContent = 'Analyzing Voice Note...';
+      document.getElementById('vadAlert').style.display = 'none';
+      document.getElementById('waveWrap').style.display = 'none';
 
-      if (vadInterval) clearInterval(vadInterval);
-
+      if (vadCheckInterval) clearInterval(vadCheckInterval);
       if (mediaRecorder && mediaRecorder.state !== 'inactive') {
         mediaRecorder.stop();
         mediaRecorder.stream.getTracks().forEach(t => t.stop());
       }
     }
 
-    async function submitVoiceData(blob) {
-      const car = document.getElementById('carPick').value;
+    async function submitVoice(blob) {
       const formData = new FormData();
-      formData.append('audio', blob, 'voicenote.webm');
-      formData.append('vehicle', car);
+      formData.append('audio', blob, 'voice.webm');
+      formData.append('vehicle', 'Mercedes-Benz C300');
 
       try {
         const res = await fetch('/api/voice-diagnostic', { method: 'POST', body: formData });
         const data = await res.json();
-        renderScamReport(data);
+        renderReport(data);
       } catch (e) {
-        demoScam('gear');
+        simulateScamScenario('gear');
       }
 
-      document.getElementById('recStatus').textContent = 'Tap to Speak Issue (Auto-Detects When Done)';
-      document.getElementById('recSub').textContent = 'Speak freely in English, Pidgin, Yoruba, or Igbo';
+      document.getElementById('vadStatusText').textContent = 'Tap to Speak Issue (Auto-Detects When Done)';
     }
 
-    async function demoScam(type) {
-      const car = document.getElementById('carPick').value;
+    async function simulateScamScenario(type) {
       let text = "";
       if (type === 'gear') text = "My car dey jerk when I shift from gear 2 to 3, and check engine light come on. Mechanic tell me say make I buy ₦850k Tokunbo gearbox.";
       else if (type === 'vibration') text = "When I drive pass 80 km/h for highway, my steering and car dey vibrate violently. Roadside mechanic quote ₦400,000 say make I change whole steering rack and 4 shocks.";
@@ -415,123 +591,68 @@
       const res = await fetch('/api/voice-diagnostic', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: text, vehicle: car })
+        body: JSON.stringify({ text: text, vehicle: 'Mercedes-Benz C300' })
       });
       const data = await res.json();
-      renderScamReport(data);
+      renderReport(data);
     }
 
-    function renderScamReport(data) {
-      const card = document.getElementById('reportCard');
+    function renderReport(data) {
+      const card = document.getElementById('scamReportCard');
       card.style.display = 'block';
-      document.getElementById('txtTranscript').textContent = `"${data.transcription || 'Voice Note Recorded'}"`;
-      document.getElementById('txtSaved').textContent = data.money_saved_ngn || '₦790,000';
-      document.getElementById('txtRootCauseTitle').textContent = data.symptom_category || 'Mechanical Analysis';
-      document.getElementById('txtRootCauseDesc').textContent = data.root_cause || '';
-      document.getElementById('txtRealCost').textContent = `Honest Repair Cost: ${data.estimated_real_cost_ngn || '₦45,000'}`;
-      document.getElementById('txtScamDesc').textContent = data.mechanic_scam_alert || '';
-      document.getElementById('txtScamCost').textContent = `Mechanic False Quote: ${data.scam_cost_ngn || '₦850,000'}`;
-      document.getElementById('txtTrueFix').textContent = data.true_fix || '';
-      document.getElementById('txtPart').textContent = data.recommended_part || 'OEM Parts';
 
-      const orderLink = `https://wa.me/?text=Hello%20AutoContentment,%20my%20${encodeURIComponent(document.getElementById('carPick').value)}%20has%20an%20issue:%20${encodeURIComponent(data.symptom_category)}.%20I%20want%20to%20order%20${encodeURIComponent(data.recommended_part)}`;
-      document.getElementById('btnOrderParts').href = orderLink;
+      document.getElementById('repTranscript').textContent = `"${data.transcription || 'Voice Note Recorded'}"`;
+      document.getElementById('repSaved').textContent = data.money_saved_ngn || '₦790,000';
+      document.getElementById('repTitle').textContent = data.symptom_category || 'Mechanical Analysis';
+      document.getElementById('repDesc').textContent = data.root_cause || '';
+      document.getElementById('repRealCost').textContent = `Honest Repair Cost: ${data.estimated_real_cost_ngn || '₦45,000'}`;
+      document.getElementById('repScamText').textContent = data.mechanic_scam_alert || '';
+      document.getElementById('repScamCost').textContent = `Mechanic False Quote: ${data.scam_cost_ngn || '₦850,000'}`;
+      document.getElementById('repTrueFix').textContent = data.true_fix || '';
+      document.getElementById('repPart').textContent = data.recommended_part || 'OEM Parts';
+
+      const orderLink = `https://wa.me/?text=Hello%20AutoContentment,%20I%20have%20an%20issue:%20${encodeURIComponent(data.symptom_category)}.%20I%20want%20to%20order%20${encodeURIComponent(data.recommended_part)}`;
+      document.getElementById('repOrderBtn').href = orderLink;
       card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Highlight corresponding 3D mechanical component
+      if (data.symptom_category.toLowerCase().includes('gear') || data.symptom_category.toLowerCase().includes('transmission')) {
+        highlight3DComponent('transmission');
+      } else if (data.symptom_category.toLowerCase().includes('vibrat') || data.symptom_category.toLowerCase().includes('cv')) {
+        highlight3DComponent('suspension');
+      } else {
+        highlight3DComponent('engine');
+      }
     }
 
-    // 2. IN-MOTION GPS VELOCITY & POTHOLE SENSING
+    // In-Motion GPS Tracker
     if ('geolocation' in navigator) {
-      navigator.geolocation.watchPosition((pos) => {
+      navigator.geolocation.watchPosition(pos => {
         const spd = pos.coords.speed ? pos.coords.speed * 3.6 : 0;
-        document.getElementById('gpsSpeed').innerHTML = `${spd.toFixed(1)} <span style="font-size:13px; color:var(--muted);">km/h</span>`;
+        document.getElementById('dispSpeed').innerHTML = `${spd.toFixed(1)} <span style="font-size:13px; color:var(--muted);">km/h</span>`;
         const h = document.getElementById('motionHeading');
-        const d = document.getElementById('motionDetail');
+        const s = document.getElementById('motionSub');
         if (spd > 5) {
-          h.textContent = 'Vehicle is in Motion';
-          d.textContent = 'Suspension shock logging & crater avoidance active.';
+          h.textContent = 'Vehicle In Motion';
+          s.textContent = 'Active road shock and crater avoidance guard active.';
         } else {
-          h.textContent = 'Vehicle is Stationary';
-          d.textContent = 'Speed at 0 km/h. Guard will engage once vehicle moves.';
+          h.textContent = 'Vehicle is Parked / Stationary';
+          s.textContent = 'Speed at 0 km/h. Guard activates once vehicle moves.';
         }
       }, () => {}, { enableHighAccuracy: true });
     }
 
-    window.addEventListener('devicemotion', (e) => {
+    window.addEventListener('devicemotion', e => {
       const acc = e.accelerationIncludingGravity || e.acceleration;
       if (!acc || acc.x === null) return;
       const norm = Math.sqrt((acc.x||0)**2 + (acc.y||0)**2 + (acc.z||0)**2);
       const shock = Math.abs(norm - 9.81) / 9.81;
-      const el = document.getElementById('shockG');
+      const el = document.getElementById('dispShock');
       if (el) {
         el.innerHTML = `${shock.toFixed(2)} <span style="font-size:13px; color:var(--muted);">G</span>`;
-        el.style.color = shock > 1.8 ? 'var(--red)' : (shock > 1.1 ? 'var(--amber)' : 'var(--green)');
+        el.style.color = shock > 1.8 ? 'var(--red)' : (shock > 1.1 ? 'var(--amber)' : 'var(--ac-green-light)');
       }
     });
-
-    // 3. CONTINUOUS RADAR
-    let radarLive = false;
-    let radarStream = null;
-    let rCtx = null;
-    let rAnalyser = null;
-    let rAnim = null;
-
-    async function toggleContinuousRadar() {
-      const btn = document.getElementById('btnRadar');
-      if (!radarLive) {
-        try {
-          radarStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          rCtx = new (window.AudioContext || window.webkitAudioContext)();
-          rAnalyser = rCtx.createAnalyser();
-          rAnalyser.fftSize = 256;
-          rCtx.createMediaStreamSource(radarStream).connect(rAnalyser);
-          radarLive = true;
-          btn.textContent = '⏹ Stop Sound Radar';
-          document.getElementById('radarLabel').textContent = 'Listening Continuously...';
-          renderRadarLoop();
-        } catch(e) { alert(e.message); }
-      } else {
-        radarLive = false;
-        btn.textContent = '▶ Engage Live Sound Radar';
-        if (radarStream) radarStream.getTracks().forEach(t => t.stop());
-        if (rAnim) cancelAnimationFrame(rAnim);
-      }
-    }
-
-    function renderRadarLoop() {
-      const c = document.getElementById('radarCanvas');
-      const ctx = c.getContext('2d');
-      const data = new Uint8Array(rAnalyser.frequencyBinCount);
-      function f() {
-        if (!radarLive) return;
-        rAnim = requestAnimationFrame(f);
-        rAnalyser.getByteFrequencyData(data);
-        ctx.fillStyle = '#040609';
-        ctx.fillRect(0, 0, c.width, c.height);
-        const w = c.width / 32;
-        let sum = 0;
-        for (let i = 0; i < 32; i++) {
-          const v = data[i * 2];
-          sum += v;
-          ctx.fillStyle = v > 150 ? '#ef4444' : '#10b981';
-          ctx.fillRect(i * w, c.height - (v / 255) * c.height, w - 1, (v / 255) * c.height);
-        }
-      }
-      f();
-    }
-
-    // 4. FUEL LOGGER
-    function logFuel() {
-      const l = parseFloat(document.getElementById('fuelLiters').value) || 45;
-      const c = parseFloat(document.getElementById('fuelCost').value) || 38000;
-      const out = document.getElementById('fuelOutput');
-      out.style.display = 'block';
-      const perLiter = (c / l).toFixed(0);
-      out.innerHTML = `
-        <div style="font-weight:700; color:#34d399; margin-bottom:4px;">⛽ Fuel Log Saved</div>
-        • <b>Volume</b>: ${l} Liters @ ₦${perLiter}/L<br>
-        • <b>Estimated Efficiency</b>: <b>9.1 km/L</b> (Normal consumption rate for ${document.getElementById('carPick').value})
-      `;
-    }
   </script>
 </body>
 </html>
