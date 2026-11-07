@@ -60,6 +60,9 @@ if STATIC_DIR.exists():
     draco_dir = STATIC_DIR / "draco"
     if draco_dir.exists():
         app.mount("/draco", StaticFiles(directory=str(draco_dir)), name="draco")
+    images_dir = STATIC_DIR / "images"
+    if images_dir.exists():
+        app.mount("/images", StaticFiles(directory=str(images_dir)), name="images")
 
 
 @app.get("/", response_class=HTMLResponse)
