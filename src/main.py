@@ -23,9 +23,14 @@ classifier = EnvironmentalAudioClassifier()
 voice_diagnostic_service = VoiceDiagnosticService()
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+INDEX_HTML_PATH = STATIC_DIR / "index.html"
 MONITOR_HTML_PATH = STATIC_DIR / "vibration_monitor.html"
 
 # Pre-cache HTML content for lightning-fast Vercel edge delivery
+CACHED_INDEX_HTML = ""
+if INDEX_HTML_PATH.exists():
+    CACHED_INDEX_HTML = INDEX_HTML_PATH.read_text(encoding="utf-8")
+
 CACHED_MONITOR_HTML = ""
 if MONITOR_HTML_PATH.exists():
     CACHED_MONITOR_HTML = MONITOR_HTML_PATH.read_text(encoding="utf-8")
@@ -66,6 +71,15 @@ if STATIC_DIR.exists():
 
 
 @app.get("/", response_class=HTMLResponse)
+async def get_index():
+    """
+    Serves the premier 3D Luxury CAD Automotive Exhibition & Roadside First-Aid Experience.
+    """
+    if INDEX_HTML_PATH.exists():
+        return HTMLResponse(content=INDEX_HTML_PATH.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>AutoContentment 3D Loading...</h1>", status_code=200)
+
+
 @app.get("/monitor", response_class=HTMLResponse)
 async def get_monitor():
     """
