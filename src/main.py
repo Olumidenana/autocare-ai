@@ -48,20 +48,21 @@ app = FastAPI(
 
 app.include_router(webhook_router, tags=["WhatsApp Webhook"])
 
-# Mount static directory if directory exists
+# Mount static directory and assets if directory exists
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+    assets_dir = STATIC_DIR / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
 
 
+@app.get("/", response_class=HTMLResponse)
 @app.get("/monitor", response_class=HTMLResponse)
 async def get_monitor():
     """
     Serves the in-motion mechanical vibration & telemetry dashboard.
-    Pre-cached in memory for zero-latency, 100% reliable Vercel serverless execution.
     """
-    if CACHED_MONITOR_HTML:
-        return HTMLResponse(content=CACHED_MONITOR_HTML)
-    elif MONITOR_HTML_PATH.exists():
+    if MONITOR_HTML_PATH.exists():
         return HTMLResponse(content=MONITOR_HTML_PATH.read_text(encoding="utf-8"))
     return HTMLResponse(content="<h1>AutoCare Telemetry Cluster Initializing...</h1>", status_code=200)
 
@@ -118,12 +119,7 @@ async def api_voice_diagnostic(request: Request):
         }
 
 
-@app.get("/", response_class=HTMLResponse)
-async def root():
-    """
-    Direct root access serves the high-performance Telemetry Dashboard automatically.
-    """
-    return await get_monitor()
+
 
 
 @app.get("/api/status")
