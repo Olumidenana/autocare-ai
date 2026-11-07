@@ -48,12 +48,18 @@ app = FastAPI(
 
 app.include_router(webhook_router, tags=["WhatsApp Webhook"])
 
-# Mount static directory and assets if directory exists
+# Mount static directory, assets, models, and draco if directory exists
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
     assets_dir = STATIC_DIR / "assets"
     if assets_dir.exists():
         app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+    models_dir = STATIC_DIR / "models"
+    if models_dir.exists():
+        app.mount("/models", StaticFiles(directory=str(models_dir)), name="models")
+    draco_dir = STATIC_DIR / "draco"
+    if draco_dir.exists():
+        app.mount("/draco", StaticFiles(directory=str(draco_dir)), name="draco")
 
 
 @app.get("/", response_class=HTMLResponse)
